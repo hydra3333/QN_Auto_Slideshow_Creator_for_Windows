@@ -138,7 +138,7 @@ That is a once-off thing, unless you delete `slideshow_settings.py` to start afr
 You can safely close the pop-up dos box after it's completed.    
 
 Now, using your favourite text editor, eg Notepad, edit `slideshow_settings.py` and make required changes.   
-Syntax is critical, all brackets, matching quotes, and commas etc must be **perfect** or the process will fail.    
+Syntax is **critical**, all brackets, matching quotes, and commas etc must be **perfect** or the process will fail.    
 Look for and change the settings you need. Please be careful or you will have to re-edit ;)    
 
 **At a minimum:**
