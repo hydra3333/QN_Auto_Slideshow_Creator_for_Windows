@@ -755,7 +755,7 @@ def load_settings():
 										[ 'CROSSFADE_TYPE',								CROSSFADE_TYPE,								r'random is a good choice, leave this alone unless confident' ],
 										[ 'CROSSFADE_DIRECTION',						CROSSFADE_DIRECTION,						r'Please leave this alone unless really confident' ],
 										[ 'DURATION_MAX_VIDEO_SEC',						DURATION_MAX_VIDEO_SEC,						r'in seconds, maximum duration each video clip is shown in the slideshow' ],
-										[ 'TARGET_BACKGROUND_AUDIO_CODEC',				TARGET_BACKGROUND_AUDIO_CODEC,				f'One of {valid_TARGET_BACKGROUND_AUDIO_CODEC}. Only if you have an FFmpeg built with "fdk_aac" can use use that.' ],
+										[ 'TARGET_BACKGROUND_AUDIO_CODEC',				TARGET_BACKGROUND_AUDIO_CODEC,				f'One of {valid_TARGET_BACKGROUND_AUDIO_CODEC}. Only if you have an FFmpeg built with "libfdk_aac" can use use that.' ],
 										[ 'TARGET_AUDIO_BACKGROUND_NORMALIZE_HEADROOM_DB',	TARGET_AUDIO_BACKGROUND_NORMALIZE_HEADROOM_DB,	r'normalize background audio to this maximum db' ],
 										[ 'TARGET_AUDIO_BACKGROUND_GAIN_DURING_OVERLAY',	TARGET_AUDIO_BACKGROUND_GAIN_DURING_OVERLAY,	r'how many DB to reduce backround audio during video clip audio overlay' ],
 										[ 'TARGET_AUDIO_SNIPPET_NORMALIZE_HEADROOM_DB',		TARGET_AUDIO_SNIPPET_NORMALIZE_HEADROOM_DB,		r'normalize video clip audio to this maximum db; camera vids are quieter so gain them' ],
