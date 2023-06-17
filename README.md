@@ -30,7 +30,7 @@ You can easily add more background audio, it's up to you, background audio is au
 
 We're good for 1,000 or so images/videos in a set of directory trees per slideshow, perhaps 5,000 max,
 although the number really is up to you. Recommend you estimate the duration as `num_pics_and_images * 3` 
-(3 seconds per pic) although videos clip durations will affect estimate a fair bit.    
+(3 seconds per pic) although videos clip durations will affect any estimate a fair bit.    
 
 Attempting `4k` resolutions requires really **huge** amounts of temporary disk space and **very long** encode times... _c'est la vie_.
 Testing shows `4k` slideshows of home pictures does not appear any better (and sometimes worse) than `1080p` on a TV.   
