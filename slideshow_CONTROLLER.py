@@ -408,7 +408,7 @@ def encode_chunk_using_vsipe_ffmpeg(individual_chunk_id):
 	individual_chunk_dict = ALL_CHUNKS[str(individual_chunk_id)]
 	
 	chunk_json_filename = UTIL.fully_qualified_filename(individual_chunk_dict['chunk_fixed_json_filename'])					# always the same fixed filename
-	proposed_ffv1_mkv_filename = UTIL.fully_qualified_filename(individual_chunk_dict['proposed_ffv1_mkv_filename'])	# preset by find_all_chunks to: fixed filename plus a seqential 5-digit-zero-padded ending based on chunk_id + r'.mkv'
+	proposed_ffv1_mkv_filename = UTIL.fully_qualified_filename(individual_chunk_dict['proposed_ffv1_mkv_filename'])			# preset by find_all_chunks to: fixed filename plus a seqential 5-digit-zero-padded ending based on chunk_id + r'.mkv'
 
 	# remove any pre-existing files to be consumed and produced by the ENCODER
 	if os.path.exists(chunk_json_filename):
@@ -1152,13 +1152,24 @@ if __name__ == "__main__":
 	##########################################################################################################################################
 	##########################################################################################################################################
 	# CLEANUP
+	print(f"CONTROLLER: START CLEANUP ... REMOVING TEMPORARY FILES IN FOLDER '{SETTINGS_DICT['TEMP_FOLDER']}'",flush=True)
+	f = UTIL.fully_qualified_filename(SETTINGS_DICT['BACKGROUND_AUDIO_WITH_OVERLAYED_SNIPPETS_FILENAME'])
+	if os.path.exists(f): os.remove(f)	
+	f = UTIL.fully_qualified_filename(individual_chunk_dict['chunk_fixed_json_filename'])
+	if os.path.exists(f): os.remove(f)	
+	f = UTIL.fully_qualified_filename(SETTINGS_DICT['CHUNKS_FILENAME_FOR_ALL_CHUNKS_DICT'])
+	if os.path.exists(f): os.remove(f)	
+	f = UTIL.fully_qualified_filename(SETTINGS_DICT['CURRENT_CHUNK_FILENAME'])
+	if os.path.exists(f): os.remove(f)	
+	f = UTIL.fully_qualified_filename(SETTINGS_DICT['TEMPORARY_FFMPEG_CONCAT_LIST_FILENAME'])
+	if os.path.exists(f): os.remove(f)	
+	for individual_chunk_id in range(0,ALL_CHUNKS_COUNT):	# 0 to (ALL_CHUNKS_COUNT - 1)
+		f = UTIL.fully_qualified_filename(SETTINGS_DICT['CHUNK_ENCODED_FFV1_FILENAME_BASE'] + str(individual_chunk_id).zfill(5) + r'.mkv')
+		if DEBUG:	print(f'DEBUG: CONTROLLER: attempting to delete chunk file "{f}"',flush=True)
+		if os.path.exists(f): os.remove(str(f))	
+	print(f"CONTROLLER: FINISHED CLEANUP OF FILES IN '{SETTINGS_DICT['TEMP_FOLDER']}'",flush=True)
 
-
-	#find uplifting royalty free background music 
-	#edit current one for first  and second first song
-
-	#cleanup step is not yet done in controller
-	#... either as we go ... or at the end or both
-
-	#tassie -- individual people's not combined
-
+	##########################################################################################################################################
+	##########################################################################################################################################
+	# FINISHED, COMPLETED, DONE.
+	print(f"CONTROLLER: COMPLETED. THE FINAL SLIDESHOW VIDEO FILE IS: '{final_mp4_with_audio_filename}'",flush=True)
