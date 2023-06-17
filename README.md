@@ -36,7 +36,7 @@ the final mp4. It's easy enough.
 # How-to : short version
 
 1. Create a new _empty_ folder on a disk with **lots** of free space
-2. Download `Setup.bat` from https://raw.githubusercontent.com/hydra3333/vpy_slideshow/main/Setup.bat into that folder    
+2. Download `Setup.bat` from https://raw.githubusercontent.com/hydra3333/QN_Auto_Slideshow_Creator_for_Windows/main/Setup.bat into that folder    
 3. Download `wget.exe` from https://eternallybored.org/misc/wget/1.21.3/64/wget.exe into that folder    
 4. Double-click `Setup.bat` to download and prepare the necessary files
 6. Double-click `QN_Auto_Slideshow_Creator_for_Windows.bat` to create a template `slideshow_settings.py`
@@ -73,10 +73,10 @@ Recommend you just review it and use the `Setup.bat` thing below.
 
 #### 2.1 Download the Setup et al
 
-Look at this url in a browser: https://github.com/hydra3333/vpy_slideshow   
+Look at this url in a browser: https://github.com/hydra3333/QN_Auto_Slideshow_Creator_for_Windows   
 Notice file `Setup.bat`   
 
-Download `Setup.bat` using this link https://raw.githubusercontent.com/hydra3333/vpy_slideshow/main/Setup.bat    
+Download `Setup.bat` using this link https://raw.githubusercontent.com/hydra3333/QN_Auto_Slideshow_Creator_for_Windows/main/Setup.bat    
 ... once it is displayed in your browser, "save as" into the fresh new directory you created above.
 
 Download the ubiquitous `wget.exe` with this link https://eternallybored.org/misc/wget/1.21.3/64/wget.exe and
