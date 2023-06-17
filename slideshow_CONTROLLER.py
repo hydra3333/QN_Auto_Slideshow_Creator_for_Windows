@@ -693,12 +693,12 @@ if __name__ == "__main__":
 	##########################################################################################################################################
 	##########################################################################################################################################
 	# DEFINE MILTI-USED SETTINGS VARIABLES
-	# rather than go to SETTINGS_DICT all the time ... since these are defined in main, functions should see them but cannot change them
+	# rather than accessing SETTINGS_DICT all the time ... since these are defined in main, functions should see them but cannot change them
 
 	target_background_audio_frequency = SETTINGS_DICT['TARGET_BACKGROUND_AUDIO_FREQUENCY']			# hopefully 48000
 	target_background_audio_channels = SETTINGS_DICT['TARGET_BACKGROUND_AUDIO_CHANNELS']			# hopefully 2
 	target_background_audio_bytedepth = SETTINGS_DICT['TARGET_BACKGROUND_AUDIO_BYTEDEPTH']			# hopefully 2 ; bytes not bits, 2 byte = 16 bit to match pcm_s16le
-	target_background_audio_codec = SETTINGS_DICT['TARGET_BACKGROUND_AUDIO_CODEC']					# hopefully 'libfdk_aac'
+	target_background_audio_codec = SETTINGS_DICT['TARGET_BACKGROUND_AUDIO_CODEC']					# hopefully 'libfdk_aac' if we have an ffmpeg built with that, or fallback to the inbuilt FFmpeg 'aac'
 	target_background_audio_bitrate = SETTINGS_DICT['TARGET_BACKGROUND_AUDIO_BITRATE']				# hopefully '256k'
 	temporary_background_audio_codec = SETTINGS_DICT['TEMPORARY_BACKGROUND_AUDIO_CODEC']			# hopefully pcm_s16le ; for 16 bit
 	target_audio_background_normalize_headroom_db = SETTINGS_DICT['TARGET_AUDIO_BACKGROUND_NORMALIZE_HEADROOM_DB']		# normalize background audio to this maximum db

@@ -201,7 +201,7 @@ def load_settings():
 	DURATION_MAX_VIDEO_SEC						= float(7200.0)
 	DENOISE_SMALL_SIZE_VIDEOS					= True
 
-	valid_TARGET_RESOLUTION_DICT				=	{	
+	valid_TARGET_RESOLUTION				=	{	
 													# These appear to work since the legacy resizing ENCODER logic caters for them.
 														r'1080p_PAL'.lower():	{ 'WIDTH': int(1920), 'HEIGHT': int(1080), 'BITRATE': r'4.5M', 'FRAMERATE_NUMERATOR': int(25),    'FRAMERATE_DENOMINATOR': int(1) },
 														r'4k_PAL'.lower():		{ 'WIDTH': int(3840), 'HEIGHT': int(2160), 'BITRATE': r'15M',  'FRAMERATE_NUMERATOR': int(25),    'FRAMERATE_DENOMINATOR': int(1) },
@@ -214,12 +214,12 @@ def load_settings():
 													#	r'576p_PAL'.lower():	{ 'WIDTH': int(720),  'HEIGHT': int(576),  'BITRATE': r'2M',   'FRAMERATE_NUMERATOR': int(25),    'FRAMERATE_DENOMINATOR': int(1) },
 													#	r'480p_NTSC'.lower():	{ 'WIDTH': int(720),  'HEIGHT': int(480),  'BITRATE': r'2M',   'FRAMERATE_NUMERATOR': int(30000), 'FRAMERATE_DENOMINATOR': int(1001) },	# 29.976
 
-	TARGET_RESOLUTION							= list(valid_TARGET_RESOLUTION_DICT.keys())[0]	# the first key in the dict should be 1080p_PAL :)
-	TARGET_WIDTH 								= valid_TARGET_RESOLUTION_DICT[TARGET_RESOLUTION]['WIDTH']
-	TARGET_HEIGHT	 							= valid_TARGET_RESOLUTION_DICT[TARGET_RESOLUTION]['HEIGHT']
-	TARGET_VIDEO_BITRATE						= valid_TARGET_RESOLUTION_DICT[TARGET_RESOLUTION]['BITRATE']		# 4.5M is ok (HQ) for h.264 1080p25 slideshow material ... dunno about 2160p, web say 25M whcih is FAR too high to be handy.
-	TARGET_FPSNUM								= valid_TARGET_RESOLUTION_DICT[TARGET_RESOLUTION]['FRAMERATE_NUMERATOR']
-	TARGET_FPSDEN								= valid_TARGET_RESOLUTION_DICT[TARGET_RESOLUTION]['FRAMERATE_DENOMINATOR']
+	TARGET_RESOLUTION							= list(valid_TARGET_RESOLUTION.keys())[0]	# the first key in the dict should be 1080p_PAL :)
+	TARGET_WIDTH 								= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['WIDTH']
+	TARGET_HEIGHT	 							= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['HEIGHT']
+	TARGET_VIDEO_BITRATE						= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['BITRATE']		# 4.5M is ok (HQ) for h.264 1080p25 slideshow material ... dunno about 2160p, web say 25M whcih is FAR too high to be handy.
+	TARGET_FPSNUM								= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['FRAMERATE_NUMERATOR']
+	TARGET_FPSDEN								= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['FRAMERATE_DENOMINATOR']
 	
 	#TARGET_WIDTH								= int(1920)		# ; "target_width" an integer; set for hd; do not change unless a dire emergency = .
 	#TARGET_HEIGHT								= int(1080)		# ; "target_height" an integer; set for hd; do not change unless a dire emergency = .
@@ -231,7 +231,8 @@ def load_settings():
 	TARGET_BACKGROUND_AUDIO_FREQUENCY			= int(48000) 
 	TARGET_BACKGROUND_AUDIO_CHANNELS			= int(2) 
 	TARGET_BACKGROUND_AUDIO_BYTEDEPTH			= int(2)		# 2 ; bytes not bits, 2 byte = 16 bit to match pcm_s16le
-	TARGET_BACKGROUND_AUDIO_CODEC				= r'libfdk_aac'
+	valid_TARGET_BACKGROUND_AUDIO_CODEC			= [ r'aac'.lower(), r'libfdk_aac'.lower(), ]
+	TARGET_BACKGROUND_AUDIO_CODEC				= valid_TARGET_BACKGROUND_AUDIO_CODEC[0]
 	TARGET_BACKGROUND_AUDIO_BITRATE				= r'256k'
 	TARGET_AUDIO_BACKGROUND_NORMALIZE_HEADROOM_DB	= int(-18)		# normalize background audio to -xxDB ; pydub calls it headroom
 	TARGET_AUDIO_BACKGROUND_GAIN_DURING_OVERLAY		= int(-30)		# reduce audio of background music during overlay of snippet audio by xxDB
@@ -323,6 +324,7 @@ def load_settings():
 		'FFMPEG_PATH':										FFMPEG_PATH,
 		'FFPROBE_PATH':										FFPROBE_PATH,
 		'VSPIPE_PATH':										VSPIPE_PATH,
+		'valid_FFMPEG_ENCODER':								valid_FFMPEG_ENCODER,
 		'FFMPEG_ENCODER':									FFMPEG_ENCODER,
 		'slideshow_CONTROLLER_path':						slideshow_CONTROLLER_path,
 		'slideshow_LOAD_SETTINGS_path':						slideshow_LOAD_SETTINGS_path,
@@ -338,7 +340,7 @@ def load_settings():
 		'DURATION_MAX_VIDEO_SEC':							DURATION_MAX_VIDEO_SEC,
 		'DENOISE_SMALL_SIZE_VIDEOS':						DENOISE_SMALL_SIZE_VIDEOS,
 
-		'valid_TARGET_RESOLUTION_DICT':						valid_TARGET_RESOLUTION_DICT,
+		'valid_TARGET_RESOLUTION':							valid_TARGET_RESOLUTION,
 		'TARGET_RESOLUTION':								TARGET_RESOLUTION,
 		'TARGET_WIDTH':										TARGET_WIDTH,
 		'TARGET_HEIGHT':									TARGET_HEIGHT,
@@ -349,6 +351,7 @@ def load_settings():
 		'TARGET_BACKGROUND_AUDIO_FREQUENCY':				TARGET_BACKGROUND_AUDIO_FREQUENCY,
 		'TARGET_BACKGROUND_AUDIO_CHANNELS':					TARGET_BACKGROUND_AUDIO_CHANNELS,
 		'TARGET_BACKGROUND_AUDIO_BYTEDEPTH':				TARGET_BACKGROUND_AUDIO_BYTEDEPTH,
+		'valid_TARGET_BACKGROUND_AUDIO_CODEC':				valid_TARGET_BACKGROUND_AUDIO_CODEC,
 		'TARGET_BACKGROUND_AUDIO_CODEC':					TARGET_BACKGROUND_AUDIO_CODEC,
 		'TARGET_BACKGROUND_AUDIO_BITRATE':					TARGET_BACKGROUND_AUDIO_BITRATE,
 		'TARGET_AUDIO_BACKGROUND_NORMALIZE_HEADROOM_DB':	TARGET_AUDIO_BACKGROUND_NORMALIZE_HEADROOM_DB,
@@ -455,8 +458,10 @@ def load_settings():
 	# Similar to the dict.update method, if both dictionaries has the same key with different values,
 	# then the final output will contain the value of the second dictionary. 
 	
-	# asssume they may have mucked with valid_TARGET_RESOLUTION_DICT ... remove it from user_specified_settings_dict just in case
-	if 'valid_TARGET_RESOLUTION_DICT' in user_specified_settings_dict: del user_specified_settings_dict['valid_TARGET_RESOLUTION_DICT']
+	# asssume they may have mucked with valid_TARGET_RESOLUTION etc ... remove it from user_specified_settings_dict just in case
+	if 'valid_FFMPEG_ENCODER'                in user_specified_settings_dict: del user_specified_settings_dict['valid_FFMPEG_ENCODER']
+	if 'valid_TARGET_RESOLUTION'             in user_specified_settings_dict: del user_specified_settings_dict['valid_TARGET_RESOLUTION']
+	if 'valid_TARGET_BACKGROUND_AUDIO_CODEC' in user_specified_settings_dict: del user_specified_settings_dict['valid_TARGET_BACKGROUND_AUDIO_CODEC']
 	
 	final_settings_dict = {**default_settings_dict, **user_specified_settings_dict}	
 	
@@ -513,19 +518,19 @@ def load_settings():
 
 	# check target resolution and reset if necessary, then store ither the resets or the new values based on the specified TARGET_RESOLUTION
 	final_settings_dict['TARGET_RESOLUTION'] = final_settings_dict['TARGET_RESOLUTION'].lower()
-	if final_settings_dict['TARGET_RESOLUTION'] not in valid_TARGET_RESOLUTION_DICT:
-		TARGET_RESOLUTION		= list(valid_TARGET_RESOLUTION_DICT.keys())[0]	# the first key in that dict
-		TARGET_WIDTH 			= valid_TARGET_RESOLUTION_DICT[TARGET_RESOLUTION]['WIDTH']
-		TARGET_HEIGHT	 		= valid_TARGET_RESOLUTION_DICT[TARGET_RESOLUTION]['HEIGHT']
-		TARGET_VIDEO_BITRATE	= valid_TARGET_RESOLUTION_DICT[TARGET_RESOLUTION]['BITRATE']
-		TARGET_FPSNUM			= valid_TARGET_RESOLUTION_DICT[TARGET_RESOLUTION]['FRAMERATE_NUMERATOR']
-		TARGET_FPSDEN			= valid_TARGET_RESOLUTION_DICT[TARGET_RESOLUTION]['FRAMERATE_DENOMINATOR']
-		print(f'load_settings: WARNING: TARGET_RESOLUTION "{final_settings_dict["TARGET_RESOLUTION"]}" not one of {valid_TARGET_RESOLUTION_DICT}, resetting to "{TARGET_RESOLUTION}"',flush=True,file=sys.stderr)
+	if final_settings_dict['TARGET_RESOLUTION'] not in valid_TARGET_RESOLUTION:
+		TARGET_RESOLUTION		= list(valid_TARGET_RESOLUTION.keys())[0]	# the first key in that dict
+		TARGET_WIDTH 			= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['WIDTH']
+		TARGET_HEIGHT	 		= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['HEIGHT']
+		TARGET_VIDEO_BITRATE	= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['BITRATE']
+		TARGET_FPSNUM			= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['FRAMERATE_NUMERATOR']
+		TARGET_FPSDEN			= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['FRAMERATE_DENOMINATOR']
+		print(f'load_settings: WARNING: TARGET_RESOLUTION "{final_settings_dict["TARGET_RESOLUTION"]}" not one of {valid_TARGET_RESOLUTION}, resetting to "{TARGET_RESOLUTION}"',flush=True,file=sys.stderr)
 		final_settings_dict['TARGET_RESOLUTION'] = TARGET_RESOLUTION
 	TARGET_RESOLUTION			= final_settings_dict['TARGET_RESOLUTION']						# grab the specified TARGET_RESOLUTION
-	TARGET_WIDTH 				= valid_TARGET_RESOLUTION_DICT[TARGET_RESOLUTION]['WIDTH']		# based on specified TARGET_RESOLUTION
-	TARGET_HEIGHT	 			= valid_TARGET_RESOLUTION_DICT[TARGET_RESOLUTION]['HEIGHT']		# based on specified TARGET_RESOLUTION
-	TARGET_VIDEO_BITRATE		= valid_TARGET_RESOLUTION_DICT[TARGET_RESOLUTION]['BITRATE']	# based on specified TARGET_RESOLUTION
+	TARGET_WIDTH 				= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['WIDTH']		# based on specified TARGET_RESOLUTION
+	TARGET_HEIGHT	 			= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['HEIGHT']		# based on specified TARGET_RESOLUTION
+	TARGET_VIDEO_BITRATE		= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['BITRATE']	# based on specified TARGET_RESOLUTION
 	final_settings_dict['TARGET_WIDTH'] = TARGET_WIDTH											# poke back the right value based on specified TARGET_RESOLUTION
 	final_settings_dict['TARGET_HEIGHT'] = TARGET_HEIGHT										# poke back the right value based on specified TARGET_RESOLUTION
 	final_settings_dict['TARGET_VIDEO_BITRATE'] = TARGET_VIDEO_BITRATE							# poke back the right value based on specified TARGET_RESOLUTION
@@ -536,6 +541,11 @@ def load_settings():
 		print(f'load_settings: WARNING: FFMPEG_ENCODER "{final_settings_dict["FMPEG_ENCODER"]}" not one of {valid_FFMPEG_ENCODER}, defaulting to "{FFMPEG_ENCODER}"',flush=True,file=sys.stderr)
 		final_settings_dict['FFMPEG_ENCODER'] = valid_FFMPEG_ENCODER[0]
 	FFMPEG_ENCODER = final_settings_dict['FFMPEG_ENCODER']
+
+	if final_settings_dict['TARGET_BACKGROUND_AUDIO_CODEC'].lower() not in valid_TARGET_BACKGROUND_AUDIO_CODEC:
+		print(f'load_settings: WARNING: TARGET_BACKGROUND_AUDIO_CODEC "{final_settings_dict["TARGET_BACKGROUND_AUDIO_CODEC"]}" not one of {valid_TARGET_BACKGROUND_AUDIO_CODEC}, defaulting to "{TARGET_BACKGROUND_AUDIO_CODEC}"',flush=True,file=sys.stderr)
+		final_settings_dict['TARGET_BACKGROUND_AUDIO_CODEC'] = valid_TARGET_BACKGROUND_AUDIO_CODEC[0]
+	TARGET_BACKGROUND_AUDIO_CODEC = final_settings_dict['TARGET_BACKGROUND_AUDIO_CODEC']
 
 	# put the new RECONSTRUCTED back into the merged dict as well
 	final_settings_dict['CHUNKS_FILENAME_FOR_ALL_CHUNKS_DICT'] = CHUNKS_FILENAME_FOR_ALL_CHUNKS_DICT
@@ -729,8 +739,8 @@ def load_settings():
 	# if the initial settings do not exist, create a raw template then exit immediately.
 	
 	if not os.path.exists(SLIDESHOW_SETTINGS_MODULE_FILENAME):
-		valid_resolutions = [k for k in valid_TARGET_RESOLUTION_DICT.keys()]
-		valid_bitrates = [ { i : valid_TARGET_RESOLUTION_DICT[i]["BITRATE"] } for i in valid_TARGET_RESOLUTION_DICT.keys() ]
+		valid_resolutions = [k for k in valid_TARGET_RESOLUTION.keys()]
+		valid_bitrates = [ { i : valid_TARGET_RESOLUTION[i]["BITRATE"] } for i in valid_TARGET_RESOLUTION.keys() ]
 		specially_formatted_settings_list =	[
 										[ 'ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS',	ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS,	r'a list, one or more folders to look in for slideshow pics/videos. the r in front of the string is CRITICAL' ],
 										[ 'RECURSIVE',									RECURSIVE,									r'case sensitive: whether to recurse the source folder(s) looking for slideshow pics/videos' ],
@@ -745,6 +755,7 @@ def load_settings():
 										[ 'CROSSFADE_TYPE',								CROSSFADE_TYPE,								r'random is a good choice, leave this alone unless confident' ],
 										[ 'CROSSFADE_DIRECTION',						CROSSFADE_DIRECTION,						r'Please leave this alone unless really confident' ],
 										[ 'DURATION_MAX_VIDEO_SEC',						DURATION_MAX_VIDEO_SEC,						r'in seconds, maximum duration each video clip is shown in the slideshow' ],
+										[ 'TARGET_BACKGROUND_AUDIO_CODEC',				TARGET_BACKGROUND_AUDIO_CODEC,				f'One of {valid_TARGET_BACKGROUND_AUDIO_CODEC}. Only if you have an FFmpeg built with "fdk_aac" can use use that.' ],
 										[ 'TARGET_AUDIO_BACKGROUND_NORMALIZE_HEADROOM_DB',	TARGET_AUDIO_BACKGROUND_NORMALIZE_HEADROOM_DB,	r'normalize background audio to this maximum db' ],
 										[ 'TARGET_AUDIO_BACKGROUND_GAIN_DURING_OVERLAY',	TARGET_AUDIO_BACKGROUND_GAIN_DURING_OVERLAY,	r'how many DB to reduce backround audio during video clip audio overlay' ],
 										[ 'TARGET_AUDIO_SNIPPET_NORMALIZE_HEADROOM_DB',		TARGET_AUDIO_SNIPPET_NORMALIZE_HEADROOM_DB,		r'normalize video clip audio to this maximum db; camera vids are quieter so gain them' ],
