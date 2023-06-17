@@ -37,7 +37,7 @@ the final mp4. It's easy enough.
 
 1. Create a new _empty_ folder on a disk with **lots** of free space
 2. Download `Setup.bat` from https://raw.githubusercontent.com/hydra3333/QN_Auto_Slideshow_Creator_for_Windows/main/Setup.bat into that folder    
-3. Download `wget.exe` from https://eternallybored.org/misc/wget/1.21.3/64/wget.exe into that folder    
+3. Download `wget.exe` from https://eternallybored.org/misc/wget/1.21.4/64/wget.exe into that folder    
 4. Double-click `Setup.bat` to download and prepare the necessary files
 6. Double-click `QN_Auto_Slideshow_Creator_for_Windows.bat` to create a template `slideshow_settings.py`
 7. Edit `slideshow_settings.py`. Syntax is **critical**. All brackets, matching quotes, and commas etc must be **perfect** or the process will fail. 
@@ -79,7 +79,7 @@ Notice file `Setup.bat`
 Download `Setup.bat` using this link https://raw.githubusercontent.com/hydra3333/QN_Auto_Slideshow_Creator_for_Windows/main/Setup.bat    
 ... once it is displayed in your browser, "save as" into the fresh new directory you created above.
 
-Download the ubiquitous `wget.exe` with this link https://eternallybored.org/misc/wget/1.21.3/64/wget.exe and
+Download the ubiquitous `wget.exe` with this link https://eternallybored.org/misc/wget/1.21.4/64/wget.exe and
 also save it into the fresh new directory you created above.  
 
 **Notes:**    
