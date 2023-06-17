@@ -198,21 +198,21 @@ settings = {
 
 ## Starting the slideshow process    
 
-1. If it already exists (eg in a re-run), delete the file you specified in `FINAL_MP4_WITH_AUDIO_FILENAME`   
+1. If it already exists (eg in a re-run), delete the file you specified in setting `FINAL_MP4_WITH_AUDIO_FILENAME`   
 
 2. In File Explorer, double-click on `QN_Auto_Slideshow_Creator_for_Windows.bat` and it will yield a pop-up dos box
 with bunch of messages to ignore.    
 
-3. Let it run. It will take a long time, showing unintelligible log messages qas it goes.
+3. Let it run. It will take a long time, showing unintelligible log messages as it goes.
 
 4. If the final messages in the pop-up dos box look like an error, examine the final messages ... since there
 is likely an error in your edits to `slideshow_settings.py`.    
 
 5. You can safely close the pop-up dos box after it's completed.    
 
-6. Locate try to play the file you specified in `FINAL_MP4_WITH_AUDIO_FILENAME`   
+6. Locate try to play the file you specified in setting `FINAL_MP4_WITH_AUDIO_FILENAME`   
 
-7. If it failed, look for and delete all temporary files in the folder you specified in `TEMP_FOLDER`
+7. If it failed, look for and delete all temporary files in the folder you specified in setting `TEMP_FOLDER`
 
 
 ## Re-running the slideshow process    
