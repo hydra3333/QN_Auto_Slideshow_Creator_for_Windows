@@ -248,8 +248,8 @@ class settings:
 		# USER_SPECIFIED_SETTINGS_DICT	the settings which were specified by the user
 
 		if self.SETTINGS_DICT['DEBUG']:
-			#IS_DEBUG = True
-			IS_DEBUG = False
+			IS_DEBUG = True
+			#IS_DEBUG = False
 		else:
 			IS_DEBUG = False
 		A_DEBUG_IS_ON = IS_DEBUG or IS_DEBUG_SYSTEM_OVERRIDE
