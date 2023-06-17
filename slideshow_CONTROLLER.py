@@ -424,7 +424,7 @@ def encode_chunk_using_vsipe_ffmpeg(individual_chunk_id):
 	except Exception as e:
 		print(f"CONTROLLER: ERROR: dumping current chunk to JSON file: '{chunk_json_filename}' for encoder, chunk_id={individual_chunk_id}, individual_chunk_dict=\n{UTIL.objPrettyPrint.pformat(individual_chunk_dict)}\n{str(e)}",flush=True,file=sys.stderr)
 		sys.exit(1)	
-	print(f"CONTROLLER: Created fixed-filename chunk file for encoder to consume: '{chunk_json_filename}' listing {ALL_CHUNKS[str(individual_chunk_id)]['num_files']} files, individual_chunk_dict=\n{UTIL.objPrettyPrint.pformat(individual_chunk_dict)}",flush=True)
+	print(f"CONTROLLER: Created fixed-filename chunk file for encoder to consume: for individual_chunk_id={individual_chunk_id} '{chunk_json_filename}' listing {ALL_CHUNKS[str(individual_chunk_id)]['num_files']} files, individual_chunk_dict=\n{UTIL.objPrettyPrint.pformat(individual_chunk_dict)}",flush=True)
 
 	# Define the commandlines for the subprocesses forming the ENCODER
 	if UTIL.DEBUG:
@@ -652,6 +652,9 @@ def encode_chunk_using_vsipe_ffmpeg(individual_chunk_id):
 		print(f"CONTROLLER: ERROR: CONTROLLER: loading updated current chunk from JSON file: '{chunk_json_filename}' from encoder, chunk_id={individual_chunk_id}, related to individual_chunk_dict=\nUTIL.objPrettyPrint.pformat(individual_chunk_dict)\n{str(e)}",flush=True,file=sys.stderr)
 		sys.exit(1)	
 	print(f"CONTROLLER: Loaded updated current chunk from ENCODER-updated JSON file: '{chunk_json_filename}'",flush=True)
+
+	if DEBUG:	print(f"CONTROLLER: DEBUG: the chunk_id returned from the encoder={updated_individual_chunk_dict['chunk_id']} whereas local encode was specified as individual_chunk_id={individual_chunk_id}",flush=True)
+
 	if (updated_individual_chunk_dict['chunk_id'] !=  individual_chunk_dict['chunk_id']) or (updated_individual_chunk_dict['chunk_id'] != individual_chunk_id):
 		print(f"CONTROLLER: ERROR: the chunk_id returned from the encoder={updated_individual_chunk_dict['chunk_id']} in updated_individual_chunk_dict does not match both expected individual_chunk_dict chunk_id={individual_chunk_dict['chunk_id']} or loop's individual_chunk_id={individual_chunk_id}",flush=True)
 		sys.exit(1)
@@ -724,7 +727,7 @@ if __name__ == "__main__":
 	except Exception as e:
 		print(f"CONTROLLER: ERROR: error returned from json.dump ALL_CHUNKS to JSON file: '{fac}'\n{str(e)}",flush=True,file=sys.stderr)
 		sys.exit(1)	
-	
+
 	##########################################################################################################################################
 	##########################################################################################################################################
 	# INTERIM ENCODING OF CHUNKS INTO INTERIM FFV1 VIDEO FILES, 
@@ -741,11 +744,14 @@ if __name__ == "__main__":
 		#						and a fixed filename for it to create (snippets for that chunk)
 
 		individual_chunk_dict = ALL_CHUNKS[str(individual_chunk_id)]
+		
+		if UTIL.DEBUG:
+			print(f"\n{'?'*100}\nDEBUG: encoder loop: individual_chunk_id={individual_chunk_id} individual_chunk_dict=\n{individual_chunk_dict}.\n{'?'*100}\n",flush=True)
 
 		chunk_json_filename = UTIL.fully_qualified_filename(individual_chunk_dict['chunk_fixed_json_filename'])					# always the same fixed filename
 		proposed_ffv1_mkv_filename = UTIL.fully_qualified_filename(individual_chunk_dict['proposed_ffv1_mkv_filename'])	# preset by find_all_chunks to: fixed filename plus a seqential 5-digit-zero-padded ending based on chunk_id + r'.mkv'
 		
-		if UTIL.DEBUG:	print(f"DEBUG: CONTROLLER: encoder loop: calling the encoder, VSPIPE piped to FFMPEG ... with controller using non-blocking reads of stdout and stderr (per chatgpt).",flush=True)
+		if UTIL.DEBUG:	print(f"DEBUG: CONTROLLER: encoder loop: CALLING THE ENCODER, individual_chunk_id={individual_chunk_id }VSPIPE piped to FFMPEG ... with controller using non-blocking reads of stdout and stderr (per chatgpt).",flush=True)
 		# These fields in a chunk dict need to be updated by the encoder:
 		#	'num_frames_in_chunk'
  		#	'start_frame_num_in_chunk'
@@ -763,7 +769,7 @@ if __name__ == "__main__":
 		encode_chunk_using_vsipe_ffmpeg(individual_chunk_id)
 		#+++
 	
-		if UTIL.DEBUG:	print(f"DEBUG: encoder loop: returned from the encoder, VSPIPE piped to FFMPEG ... with controller using non-blocking reads of stdout and stderr (per chatgpt).",flush=True)
+		if UTIL.DEBUG:	print(f"DEBUG: encoder loop: RETURNED FROM THE ENCODER, individual_chunk_id={individual_chunk_id} VSPIPE piped to FFMPEG ... with controller using non-blocking reads of stdout and stderr (per chatgpt).",flush=True)
 	#end for
 
 	if UTIL.DEBUG:

@@ -248,7 +248,8 @@ class settings:
 		# USER_SPECIFIED_SETTINGS_DICT	the settings which were specified by the user
 
 		if self.SETTINGS_DICT['DEBUG']:
-			IS_DEBUG = True
+			#IS_DEBUG = True
+			IS_DEBUG = False
 		else:
 			IS_DEBUG = False
 		A_DEBUG_IS_ON = IS_DEBUG or IS_DEBUG_SYSTEM_OVERRIDE
@@ -485,10 +486,10 @@ class OBOLETE_legacy_settings:
 				#	if A_DEBUG_IS_ON: print_DEBUG(f'class settings: read_ini_and_calculate_settings: \tRAW, READ FROM .ini WITH DEFAULTS: config["{self._ini_section_name}"]["{objPrettyPrint.pformat(k)}"] = {objPrettyPrint.pformat(v)}')
 				reset_to_ini_defaults = False
 			else:
-				print_NORMAL(f'ENCODER: class settings: read_ini_and_calculate_settings: WARNING: Missing section "{self._ini_section_name}" in .ini file "{self.ini_file_specifying_parameters}". Using defaults.')
+				print_NORMAL(f'ENCODER (legacy): class settings: read_ini_and_calculate_settings: WARNING: Missing section "{self._ini_section_name}" in .ini file "{self.ini_file_specifying_parameters}". Using defaults.')
 				reset_to_ini_defaults = True
 		else:
-			print_NORMAL(f'ENCODER: class settings: read_ini_and_calculate_settings: WARNING: Missing .ini file "{self.ini_file_specifying_parameters}". Using defaults.')
+			print_NORMAL(f'ENCODER (legacy): class settings: read_ini_and_calculate_settings: WARNING: Missing .ini file "{self.ini_file_specifying_parameters}". Using defaults.')
 			reset_to_ini_defaults = True
 		if reset_to_ini_defaults:
 			if A_DEBUG_IS_ON: print_DEBUG(f'class settings: read_ini_and_calculate_settings: Reverting to default ini settngs')
@@ -638,7 +639,7 @@ class OBOLETE_legacy_settings:
 			# update the .ini file
 			if A_DEBUG_IS_ON: print_DEBUG(f'class settings: read_ini_and_calculate_settings: Saving updated .ini file: ini_values=\n{objPrettyPrint.pformat(self._ini_values)}')
 			update_config.write(configfile)
-		print_NORMAL(f'class settings: read_ini_and_calculate_settings: Saved updated .ini "{self.ini_file_specifying_parameters}"')
+		print_NORMAL(f'ENCODER (legacy): class settings: read_ini_and_calculate_settings: Saved updated .ini "{self.ini_file_specifying_parameters}"')
 		# calculate required  values and create a new updated calculated values dict
 		self.calc_ini = self._ini_values[self._ini_section_name]
 		self.calc_ini["PIC_EXTENSIONS"]					= [".png", ".jpg", ".jpeg", ".gif"]								# always lower case
@@ -1576,7 +1577,7 @@ def get_clip_from_path_with_VFR_fixed(path, ext, mediainfo_specs):	# opens VID_E
 		c = core.ffms2.Source(str(path), cachefile=ffcachefile, fpsnum=objSettings.TARGET_VFR_FPSNUM, fpsden=objSettings.TARGET_VFR_FPSDEN)	# force dups and drops to "convert" to VFR
 		last_file_opened_with_ffms2 = True
 	except Exception as e:
-		print_NORMAL(f'ENCODER: WARNING: error opening file via "ffms2": "{str(path)}" ; ignoring this video clip. The error was:\n{e}\n{type(e)}\n{str(e)}')
+		print_NORMAL(f'ENCODER (legacy): WARNING: error opening file via "ffms2": "{str(path)}" ; ignoring this video clip. The error was:\n{e}\n{type(e)}\n{str(e)}')
 		return None
 	if A_DEBUG_IS_ON: print_DEBUG(f'get_clip_from_path_with_VFR_fixed: OPENED FILE with ffms2 specifying fpsnum={objSettings.TARGET_VFR_FPSNUM}, fpsden={objSettings.TARGET_VFR_FPSDEN}')
 	if A_DEBUG_IS_ON: print_DEBUG(f'get_clip_from_path_with_VFR_fixed:                         clip says fpsnum={c.fps_num}, fpsden={c.fps_den} clip=\n{c}')
@@ -1629,7 +1630,7 @@ def get_clip_from_path(path, ext, mediainfo_specs):		# opens VID_EEK_EXTENSIONS 
 			last_file_opened_with_ffms2 = True
 			if A_DEBUG_IS_ON: print_DEBUG(f'get_clip: opened ffmps2 Video {path.name} clip:\n{c}')
 		except Exception as e:
-			print_NORMAL(f'ENCODER: WARNING: error opening file via "ffms2": "{str(path)}" ; ignoring this video clip. The error was:\n{e}\n{type(e)}\n{str(e)}')
+			print_NORMAL(f'ENCODER (legacy): WARNING: error opening file via "ffms2": "{str(path)}" ; ignoring this video clip. The error was:\n{e}\n{type(e)}\n{str(e)}')
 			return None
 	elif  ext in objSettings.EEK_EXTENSIONS:
 		try:
@@ -1638,7 +1639,7 @@ def get_clip_from_path(path, ext, mediainfo_specs):		# opens VID_EEK_EXTENSIONS 
 			last_file_opened_with_LWLibavSource = True
 			if A_DEBUG_IS_ON: print_DEBUG(f'get_clip: opened lsmas Video {path.name} clip:\n{c}')
 		except Exception as e:
-			print_NORMAL(f'ENCODER: WARNING: error opening file via "lsmas": "{path.name}" ; ignoring this video clip. The error was:\n{e}\n{type(e)}\n{str(e)}')
+			print_NORMAL(f'ENCODER (legacy): WARNING: error opening file via "lsmas": "{path.name}" ; ignoring this video clip. The error was:\n{e}\n{type(e)}\n{str(e)}')
 			return None
 	else:
 		raise ValueError(f'get_clip_from_path: expected {path} to have extension in {objSettings.VID_EEK_EXTENSIONS} ... aborting')
@@ -1676,7 +1677,7 @@ def get_clip_from_pic(path, ext):
 			##last_file_opened_with_imwri = True
 			####if A_DEBUG_IS_ON: print_DEBUG(f'get_clip_from_pic: imwri Video info:\n{clip}')
 		except Exception as e:
-			print_NORMAL(f'ENCODER: WARNING: error opening file via "ffms2": "{path.name}" ; ignoring this picture. The error was:\n{e}\n{type(e)}\n{str(e)}')
+			print_NORMAL(f'ENCODER (legacy): WARNING: error opening file via "ffms2": "{path.name}" ; ignoring this picture. The error was:\n{e}\n{type(e)}\n{str(e)}')
 			return None
 	else:
 		raise ValueError(f'get_clip_from_pic: expected {path} to have extension in {objSettings.PIC_EXTENSIONS} ... aborting')
@@ -2483,11 +2484,11 @@ def crossfade_merge(a=None, b=None, crossfade_duration_frames:int=4, crossfade_t
 		raise ValueError(f'ERROR: crossfade_merge: crossfade_type "{crossfade_type}" Clip "a" must be a clip. \na={a} a={a.width}x{a.height}\nb={b} b={b.width}x{b.height}')
 	if crossfade_type is None:
 		crossfade_type = "random".lower()
-		print_NORMAL(f'ENCODER: WARNING: crossfade_merge: unspecified crossfade_type "{crossfade_type}", using "random" instead.')
+		print_NORMAL(f'ENCODER (legacy): WARNING: crossfade_merge: unspecified crossfade_type "{crossfade_type}", using "random" instead.')
 	else:
 		crossfade_type = crossfade_type.lower()
 		if crossfade_type not in crossfade_type_list:
-			print_NORMAL(f'ENCODER: WARNING: crossfade_merge: unrecognised crossfade_type "{crossfade_type}", using "random" instead.')
+			print_NORMAL(f'ENCODER (legacy): WARNING: crossfade_merge: unrecognised crossfade_type "{crossfade_type}", using "random" instead.')
 			crossfade_type = "random".lower()
 	if crossfade_type in list(map(str.lower,[ 'fade_to_black', 'fade_from_black', ])):	# these only consume clip a, and so clip b can be none
 		pass	# these 2 crossfade_types do not need nor want a clip b
@@ -2521,13 +2522,13 @@ def crossfade_merge(a=None, b=None, crossfade_duration_frames:int=4, crossfade_t
 		if crossfade_direction not in d:
 			o = crossfade_direction
 			crossfade_direction = random.choice(d)
-			print_NORMAL(f'ENCODER: WARNING: crossfade_merge: crossfade_type="{crossfade_type}" invalid crossfade_direction="{o}" so random direction="{crossfade_direction}" chosen')
+			print_NORMAL(f'ENCODER (legacy): WARNING: crossfade_merge: crossfade_type="{crossfade_type}" invalid crossfade_direction="{o}" so random direction="{crossfade_direction}" chosen')
 	else:
 		d = [vs_transitions.Direction.LEFT.value, vs_transitions.Direction.RIGHT.value, vs_transitions.Direction.UP.value, vs_transitions.Direction.DOWN.value]
 		if crossfade_direction not in d:
 			o = crossfade_direction
 			crossfade_direction = random.choice(d)
-			print_NORMAL(f'ENCODER: WARNING: crossfade_merge: crossfade_type="{crossfade_type}" invalid crossfade_direction="{o}" so random direction="{crossfade_direction}" chosen')
+			print_NORMAL(f'ENCODER (legacy): WARNING: crossfade_merge: crossfade_type="{crossfade_type}" invalid crossfade_direction="{o}" so random direction="{crossfade_direction}" chosen')
 	#
 	# https://www.freecodecamp.org/news/how-to-substring-a-string-in-python/
 	# string[start:end]	: all characters from start to (end - 1) : base 0
@@ -2644,7 +2645,7 @@ def crossfade_merge(a=None, b=None, crossfade_duration_frames:int=4, crossfade_t
 				crossfaded_clips = vs_transitions.add_together(a_crossfading_frames, b_crossfading_frames)
 				pass
 	except:
-		print_NORMAL(f'ERROR: crossfade_merge: exception returned from vs_transitions: File_number={Count_of_files} crossfade_type="{crossfade_type}" crossfade_duration_frames={crossfade_duration_frames} crossfade_direction="{crossfade_direction}" \na={a} a={a.width}x{a.height}\nb={b} b={b.width}x{b.height}')
+		print_NORMAL(f'ENCODER (legacy): ERROR: crossfade_merge: exception returned from vs_transitions: File_number={Count_of_files} crossfade_type="{crossfade_type}" crossfade_duration_frames={crossfade_duration_frames} crossfade_direction="{crossfade_direction}" \na={a} a={a.width}x{a.height}\nb={b} b={b.width}x{b.height}')
 		raise
 
 	if crossfaded_clips is None or len(crossfaded_clips) == 0:
@@ -2827,7 +2828,7 @@ if objSettings.DEBUG: print_DEBUG(f"DEBUG={objSettings.DEBUG} IS_DEBUG={IS_DEBUG
 if not os.path.isdir(objSettings.TEMP_DIRECTORY_LIST[0]):
 	try: 
 		os.mkdir(objSettings.TEMP_DIRECTORY_LIST[0]) 
-		print_NORMAL(f'Created new directory: "{objSettings.TEMP_DIRECTORY_LIST[0]}"')
+		print_NORMAL(f'ENCODER (legacy): Created new directory: "{objSettings.TEMP_DIRECTORY_LIST[0]}"')
 	except OSError as error: 
 		###if A_DEBUG_IS_ON: print_DEBUG(error) 
 		pass
@@ -2966,7 +2967,7 @@ for i in range(0,num_files):	# base 0; 0..(num_files - 1)
 	
 	if A_DEBUG_IS_ON: print_DEBUG(f'********************************************************************************************************************************************************************************************************************************************************')
 	Count_of_files = Count_of_files + 1
-	print_NORMAL(f'Processing {Count_of_files} {str(path)}')
+	print_NORMAL(f'ENCODER (legacy): Processing chunk, file {Count_of_files} {str(path)}')
 	this_clip = get_clip_2(path)
 	if this_clip is None:	# ignore clips which had an issue with being opened
 		raise ValueError(f'Unable to process {Count_of_files} {str(path)} even through open-checked by the controller.')
@@ -3021,7 +3022,7 @@ if A_DEBUG_IS_ON:	print_DEBUG(f"DEBUG: ENCODER: Created fixed-filename chunk fil
 
 
 #++++++++++++++++++++
-print_NORMAL(f'ENCODER: Finished processing {Count_of_files} image/video files, num_frames={len(clips)} crossfade="{ct}/{cd}" RECURSIVE={objSettings.RECURSIVE} DEBUG_MODE={objSettings.DEBUG_MODE}" \n      with Extensions={objPrettyPrint.pformat(objSettings.EXTENSIONS)}')
+print_NORMAL(f'ENCODER (legacy): Finished processing {Count_of_files} image/video files, num_frames={len(clips)} crossfade="{ct}/{cd}" RECURSIVE={objSettings.RECURSIVE} DEBUG_MODE={objSettings.DEBUG_MODE}" \n      with Extensions={objPrettyPrint.pformat(objSettings.EXTENSIONS)}')
 #++++++++++++++++++++
 
 #++++++++++++++++++++
@@ -3032,7 +3033,7 @@ clips = clips.resize.Point(format=objSettings.TARGET_PIXEL_FORMAT)
 #++++++++++++++++++++
 # Cleanup any temporary .ffindex files created by ffms2
 # THE .FFINDEX ARE CREATED in the temporary folder
-print_NORMAL(f'ENCODER: Start removing temporary *.ffindex files from directory "{objSettings.TEMP_DIRECTORY_LIST[0]}" with recursive="{objSettings.RECURSIVE}" ...')
+print_NORMAL(f'ENCODER (legacy): Start removing temporary *.ffindex files from directory "{objSettings.TEMP_DIRECTORY_LIST[0]}" with recursive="{objSettings.RECURSIVE}" ...')
 ff_glob_var="**/*.ffindex"		# for .ffindex file deletion recursive
 #ff_glob_var="*.ffindex"		# for .ffindex file deletion non-recursive
 pp = objSettings.TEMP_DIRECTORY_LIST[0] + "/" + ff_glob_var
@@ -3047,8 +3048,8 @@ for ff in ffindex_files:
 			if A_DEBUG_IS_ON: print_DEBUG(f'removing {Count_of_files_removed} {ff}')
 			os.remove(ff)
 		except OSError as ee:
-			print_NORMAL(f'ERROR:  error during removal of ffindex file: {ff} :{ee} : {ee.strerror}')
-			raise ValueError(f'ERROR: error during removal of ffindex file: {ff} :{ee} : {ee.strerror}')
+			print_NORMAL(f'ENCODER (legacy): ERROR:  error during removal of ffindex file: {ff} :{ee} : {ee.strerror}')
+			raise ValueError(f'ENCODER (legacy): ERROR: error during removal of ffindex file: {ff} :{ee} : {ee.strerror}')
 print_NORMAL(f'Finished removing {Count_of_files_removed} temporary .ffindex files with recursive="{objSettings.RECURSIVE}"')
 num_unreachable_objects = gc.collect()	# With no arguments, run a full garbage collection. # The number of unreachable objects found is returned
 if A_DEBUG_IS_ON: print_DEBUG(f'*** GARBAGE_COLLECTION: post-Delete-ffindex-files-loop, number of unreachable objects found={num_unreachable_objects}')
@@ -3057,7 +3058,7 @@ clips.set_output()
 #++++++++++++++++++++
 output_clip_specs = get_clip_specs(clips, path=None, ext=".mp4", mediainfo_specs=None)
 if A_DEBUG_IS_ON: print_DEBUG(f'OUTPUT VIDEO: clip and frame properties: w={clips.width} h={clips.height} specs=\n{objPrettyPrint.pformat(output_clip_specs)}')
-print_NORMAL(f'Done. ENCODER completed.')
+print_NORMAL(f'ENCODER (legacy): Done. ENCODER completed.')
 #++++++++++++++++++++
 
 
@@ -3093,7 +3094,7 @@ print_NORMAL(f'Done. ENCODER completed.')
 #	current_Directory = UTIL.fully_qualified_directory_no_trailing_backslash(Directory)
 #	ct = objSettings.CROSSFADE_TYPE if objSettings.DURATION_CROSSFADE_FRAMES>0 else None
 #	cd = objSettings.CROSSFADE_DIRECTION if objSettings.DURATION_CROSSFADE_FRAMES>0 else None
-#	print_NORMAL(f'Start processing image/video files in "{current_Directory}" crossfade="{ct}/{cd}" RECURSIVE={objSettings.RECURSIVE} DEBUG_MODE={objSettings.DEBUG_MODE} glob_var="{glob_var}" \n      with Extensions={objPrettyPrint.pformat(objSettings.EXTENSIONS)}')
+#	print_NORMAL(f'ENCODER (legacy): Start processing image/video files in "{current_Directory}" crossfade="{ct}/{cd}" RECURSIVE={objSettings.RECURSIVE} DEBUG_MODE={objSettings.DEBUG_MODE} glob_var="{glob_var}" \n      with Extensions={objPrettyPrint.pformat(objSettings.EXTENSIONS)}')
 #	# NOTE: current_Directory MUST NOT have a trailing backslash ... remove during ini setup
 #	paths = Path(current_Directory).glob(glob_var) # generator of all paths in a directory, files starting with . won't be matched by default
 #	path = get_path(paths)	#pre-fetch first path
@@ -3103,10 +3104,10 @@ print_NORMAL(f'Done. ENCODER completed.')
 #	while not (path is None):	# first clip already pre-retrieved ready for this while loop
 #		if A_DEBUG_IS_ON: print_DEBUG(f'********************************************************************************************************************************************************************************************************************************************************')
 #		Count_of_files = Count_of_files + 1
-#		print_NORMAL(f'processing {Count_of_files} {str(path)}')
+#		print_NORMAL(f'ENCODER (legacy): processing {Count_of_files} {str(path)}')
 #		this_clip = get_clip_2(path)
 #		if this_clip is None:	# ignore clips which had an issue with being opened
-#			print_NORMAL(f'Unable to process {Count_of_files} {str(path)} ... ignoring it ')
+#			print_NORMAL(f'ENCODER (legacy): Unable to process {Count_of_files} {str(path)} ... ignoring it ')
 #		else:
 #			if objSettings.DURATION_CROSSFADE_FRAMES > 0:		# and objSettings.CROSSFADE_TYPE.lower() != "none".lower():
 #				#if A_DEBUG_IS_ON: print_DEBUG(f'Performing crossfade_merge in while loop')
@@ -3144,7 +3145,7 @@ print_NORMAL(f'Done. ENCODER completed.')
 #del this_clip
 #++++++++++++++++++++
 #++++++++++++++++++++
-#print_NORMAL(f'Finished processing {Count_of_files} image/video files in "{current_Directory}" num_frames={len(clips)} crossfade="{ct}/{cd}" RECURSIVE={objSettings.RECURSIVE} DEBUG_MODE={objSettings.DEBUG_MODE} glob_var="{glob_var}" \n      with Extensions={objPrettyPrint.pformat(objSettings.EXTENSIONS)}')
+#print_NORMAL(f'ENCODER (legacy): Finished processing {Count_of_files} image/video files in "{current_Directory}" num_frames={len(clips)} crossfade="{ct}/{cd}" RECURSIVE={objSettings.RECURSIVE} DEBUG_MODE={objSettings.DEBUG_MODE} glob_var="{glob_var}" \n      with Extensions={objPrettyPrint.pformat(objSettings.EXTENSIONS)}')
 #++++++++++++++++++++
 #++++++++++++++++++++
 ## Convert from ["WORKING_PIXEL_FORMAT"] vs.YUV444P8 to  ["WORKING_PIXEL_FORMAT"] vs.YUV420P8 for output
@@ -3153,7 +3154,7 @@ print_NORMAL(f'Done. ENCODER completed.')
 #++++++++++++++++++++
 ## Cleanup any temporary .ffindex files created by ffms2
 ## THE .FFINDEX ARE CREATED in the temporary folder
-#print_NORMAL(f'Start removing temporary *.ffindex files from directory "{current_Directory}" with recursive="{objSettings.RECURSIVE}" ...')
+#print_NORMAL(f'ENCODER (legacy): Start removing temporary *.ffindex files from directory "{current_Directory}" with recursive="{objSettings.RECURSIVE}" ...')
 #ff_glob_var="**/*.ffindex"		# for .ffindex file deletion recursive
 ##ff_glob_var="*.ffindex"		# for .ffindex file deletion non-recursive
 #pp = objSettings.TEMP_DIRECTORY_LIST[0] + "/" + ff_glob_var
@@ -3168,15 +3169,15 @@ print_NORMAL(f'Done. ENCODER completed.')
 #			if A_DEBUG_IS_ON: print_DEBUG(f'removing {Count_of_files_removed} {ff}')
 #			os.remove(ff)
 #		except OSError as ee:
-#			print_NORMAL(f'ERROR:  error during removal of ffindex file: {ff} :{ee} : {ee.strerror}')
+#			print_NORMAL(f'ENCODER (legacy): ERROR:  error during removal of ffindex file: {ff} :{ee} : {ee.strerror}')
 #			raise ValueError(f'ERROR: error during removal of ffindex file: {ff} :{ee} : {ee.strerror}')
-#print_NORMAL(f'Finished removing {Count_of_files_removed} temporary .ffindex files with recursive="{objSettings.RECURSIVE}"')
+#print_NORMAL(f'ENCODER (legacy): Finished removing {Count_of_files_removed} temporary .ffindex files with recursive="{objSettings.RECURSIVE}"')
 #num_unreachable_objects = gc.collect()	# With no arguments, run a full garbage collection. # The number of unreachable objects found is returned
 #if A_DEBUG_IS_ON: print_DEBUG(f'*** GARBAGE_COLLECTION: post-Delete-ffindex-files-loop, number of unreachable objects found={num_unreachable_objects}')
 #clips.set_output()
 #++++++++++++++++++++
 #++++++++++++++++++++
-#print_NORMAL(f'Done.')
+#print_NORMAL(f'ENCODER (legacy): Done.')
 #output_clip_specs = get_clip_specs(clips, path=None, ext=".mp4", mediainfo_specs=None)
 #if A_DEBUG_IS_ON: print_DEBUG(f'OUTPUT VIDEO: clip and frame properties: w={clips.width} h={clips.height} specs=\n{objPrettyPrint.pformat(output_clip_specs)}')
 #++++++++++++++++++++
