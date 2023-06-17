@@ -7,6 +7,13 @@ from images and video clips in specified folders,
 with background audio from a nominated folder of audio files, 
 with video audio overlayed onto the background audio.    
 
+Started out as something which nothing else seemed to do "automatically" - traversing 
+folder trees to produce a slideshow of photos and video clips taken by phones and 
+old digital cameras, with background audio.
+
+When you have a surviving parent asking for a slideshow of their lives' pictures 
+and they give you >28,000 photos+videos, what do you do ? Get on with it, of course.
+
 This is a hack-up of good stuff provided earlier by \_AI\_ in thread   
 https://forum.videohelp.com/threads/408230-ffmpeg-avc-from-jpgs-of-arbitrary-dimensions-maintaining-aspect-ratio 
 \_AI\_ has much better and elegant code which works with audio ... consider looking for that on GITHUB.    
