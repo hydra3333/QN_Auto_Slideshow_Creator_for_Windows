@@ -32,18 +32,10 @@ REM
 
 @ECHO ON
 
-REM set "script=.\slideshow_CONTROLLER.py"
-REM set "log=!script!.log"
-REM del /f "!log!"
+set "script=.\slideshow_CONTROLLER.py"
 
-REM echo type ".\slideshow_settings.py" >>"!log!" 2>&1
-REM type ".\slideshow_settings.py" >>"!log!" 2>&1
-REM type ".\slideshow_settings.py"
+"!python_exe!" "!script!"
 
-rem echo "!python_exe!" "!script!" >>"!log!" 2>&1
-"!python_exe!" "!script!" >>"!log!" 2>&1
-
-REM type "!log!"
 pause
 exit
 

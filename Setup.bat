@@ -311,13 +311,13 @@ REM THIS WORKS TO RETRIEVE THE LATEST RELEASE FROM GITHUB
 REM THE FILENAME IS LIKE hydra3333-vpy_slideshow-v00.01-1-ge6afec1.zip
 REM https://github.com/hydra3333/vpy_slideshow/zipball/main
 IF EXIST "%vs_temp%vpy_slideshow.zip" (del /f "%vs_temp%vpy_slideshow.zip")
-REM get the latests release ...
-REM "%vs_CD%wget.exe" -v -t 1 --server-response --no-check-certificate --timeout=360 -nd -np -nH --no-cookies --output-document="%vs_temp%vpy_slideshow.zip" https://github.com/hydra3333/vpy_slideshow/zipball/main
+REM "%vs_CD%wget.exe" -v -t 1 --server-response --no-check-certificate --timeout=360 -nd -np -nH --no-cookies --output-document="%vs_temp%QN_Auto_Slideshow_Creator_for_Windows.zip" https://github.com/hydra3333/QN_Auto_Slideshow_Creator_for_Windows/zipball/main
 REM get the latest git head ...
-"%vs_CD%wget.exe" -v -t 1 --server-response --no-check-certificate --timeout=360 -nd -np -nH --no-cookies --output-document="%vs_temp%vpy_slideshow.zip" https://github.com/hydra3333/vpy_slideshow/archive/refs/heads/main.zip
-"%vs_path%7za.exe" t "%vs_temp%vpy_slideshow.zip"
-"%vs_path%7za.exe" e -y -aoa "%vs_temp%vpy_slideshow.zip" -o"%vs_CD%"   *\vpy_slideshow.vpy *\vpy_slideshow.bat *\SLIDESHOW_PARAMETERS.ini *\show_unique_properties.bat *\show_unique_properties.vpy
-"%vs_path%7za.exe" e -y -aoa "%vs_temp%vpy_slideshow.zip" -o"%vs_path%" *\vs_transitions.py
+"%vs_CD%wget.exe" -v -t 1 --server-response --no-check-certificate --timeout=360 -nd -np -nH --no-cookies --output-document="%vs_temp%QN_Auto_Slideshow_Creator_for_Windows.zip" https://github.com/hydra3333/QN_Auto_Slideshow_Creator_for_Windows/archive/refs/heads/main.zip
+"%vs_path%7za.exe" t "%vs_temp%QN_Auto_Slideshow_Creator_for_Windows.zip"
+REM "%vs_path%7za.exe" e -y -aoa "%vs_temp%QN_Auto_Slideshow_Creator_for_Windows.zip" -o"%vs_CD%"   *\QN_Auto_Slideshow_Creator_for_Windows.vpy *\QN_Auto_Slideshow_Creator_for_Windows.bat *\SLIDESHOW_PARAMETERS.ini *\show_unique_properties.bat *\show_unique_properties.vpy
+REM "%vs_path%7za.exe" e -y -aoa "%vs_temp%QN_Auto_Slideshow_Creator_for_Windows.zip" -o"%vs_path%" *\vs_transitions.py
+"%vs_path%7za.exe" e -y -aoa "%vs_temp%QN_Auto_Slideshow_Creator_for_Windows.zip" -o"%vs_CD%"   *\*
 
 CD "%vs_CD%"
 pause
