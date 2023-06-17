@@ -64,7 +64,7 @@ be downloaded into the folder tree and a bunch of dependencies "portable install
 ### 1. Create a fresh new directory   
 
 Create a new EMPTY directory somewhere on a disk which has a LOT of free disk space. Try not to use `C:`.   
-I will need, say, 5 Gb free disk space per 100 pics/videos, which will be used for temporary working files.   
+It will need, say, 5 Gb free disk space per 100 pics/videos, which will be used for temporary working files.   
 Later, once installed and configured, you may choose to re-configure to use a temporary folder on another disk.   
 
 **For the purpose of examples below, let's assume you created a new folder called `D:\QN_Auto_Slideshow_Creator_for_Windows`**    
