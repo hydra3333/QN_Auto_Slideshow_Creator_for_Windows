@@ -49,7 +49,7 @@ the final mp4. It's easy enough.
 6. Double-click `QN_Auto_Slideshow_Creator_for_Windows.bat` to create a template `slideshow_settings.py`
 7. Edit `slideshow_settings.py`. Syntax is **critical**. All brackets, matching quotes, and commas etc must be **perfect** or the process will fail 
 8. Double-click `QN_Auto_Slideshow_Creator_for_Windows.bat` which will consume `slideshow_settings.py` and create the slideshow according to your settings
-9. Look for the resulting slideshow file you specified with settings `FINAL_MP4_WITH_AUDIO_FILENAME`
+9. Look for the resulting slideshow file you specified with setting `FINAL_MP4_WITH_AUDIO_FILENAME`
 
 # How-to : the details
 
