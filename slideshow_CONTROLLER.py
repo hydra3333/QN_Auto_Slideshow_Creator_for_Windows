@@ -187,7 +187,7 @@ def find_all_chunks():
 	for Directory in SETTINGS_DICT['ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS']:				# Use the order of folders as specified by the user in the LIST, unsorted
 		current_Directory = Directory
 		#files = sorted(Path(current_Directory).glob(glob_var)) 									# generator of all files in a directory, files starting with . won't be matched by default
-		files = sorted( (entry for entry in Path(current_Directory).glob(glob_var) if (entry.is_file() and entry.suffix.lower() in SETTINGS_DICT['EXTENSIONS'])), key=lambda p: (p.parent, p.name) )  # consider files but exclude directories in the generator, sorting them
+		files = sorted( (entry for entry in Path(current_Directory).glob(glob_var) if (entry.is_file() and entry.suffix.lower() in SETTINGS_DICT['EXTENSIONS'])), key=lambda p: (p.parent.lower(), p.name.lower()) )  # consider files but exclude directories in the generator, sorting them
 		for filename in files:		# filename type='<class 'pathlib.WindowsPath'>'
 			if UTIL.DEBUG:	print(f"DEBUG: find_all_chunks: found file '{filename}', re-checking if file is in '{SETTINGS_DICT['EXTENSIONS']}'",flush=True)
 			if filename.suffix.lower() in SETTINGS_DICT['EXTENSIONS']:
@@ -359,7 +359,7 @@ def audio_standardize_and_import_background_audios_from_folder(background_audio_
 	c = 0
 	v = 0
 	#files = sorted(os.listdir(background_audio_folder))
-	files = sorted( (entry for entry in Path(background_audio_folder).glob(glob_var) if (entry.is_file() and entry.suffix.lower() in extensions)), key=lambda p: (p.parent, p.name) )  # consider files but exclude directories in the generator, sorting them
+	files = sorted( (entry for entry in Path(background_audio_folder).glob(glob_var) if (entry.is_file() and entry.suffix.lower() in extensions)), key=lambda p: (p.parent.lower(), p.name.lower()) )  # consider files but exclude directories in the generator, sorting them
 	for filename in files:
 		c = c + 1
 		if UTIL.DEBUG:	print(f"DEBUG: audio_standardize_and_import_background_audios_from_folder: found file '{filename}', checking if file is in '{extensions}'",flush=True)
