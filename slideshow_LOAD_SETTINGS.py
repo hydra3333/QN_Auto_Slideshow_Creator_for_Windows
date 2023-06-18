@@ -235,7 +235,7 @@ def load_settings():
 	TARGET_BACKGROUND_AUDIO_CODEC				= valid_TARGET_BACKGROUND_AUDIO_CODEC[0]
 	TARGET_BACKGROUND_AUDIO_BITRATE				= r'256k'
 	TARGET_AUDIO_BACKGROUND_NORMALIZE_HEADROOM_DB	= int(-18)		# normalize background audio to -xxDB ; pydub calls it headroom
-	TARGET_AUDIO_BACKGROUND_GAIN_DURING_OVERLAY		= int(-30)		# reduce audio of background music during overlay of snippet audio by xxDB
+	TARGET_AUDIO_BACKGROUND_GAIN_DURING_OVERLAY		= int(-26)		# reduce audio of background music during overlay of snippet audio by xxDB
 	TARGET_AUDIO_SNIPPET_NORMALIZE_HEADROOM_DB		= int(-12)		# normalize snippet audio to -xxDB ; pydub calls it headroom; camera vids are usually much quieter than background music
 
 	TEMPORARY_BACKGROUND_AUDIO_CODEC			= r'pcm_s16le'	# ; for 16 bit .wav
