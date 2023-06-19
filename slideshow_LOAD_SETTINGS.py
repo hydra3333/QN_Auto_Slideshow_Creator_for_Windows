@@ -143,7 +143,7 @@ def load_settings():
 
 	ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS	= [ UTIL.fully_qualified_directory_no_trailing_backslash(r'.') ]
 	
-	valid_SORT_TYPES							= [r'alphabetic_files_folders'.lower(), r'alphabetic'.lower(), r'win_files_folders.lower()', r'win_files'.lower(), r'random'.lower()]
+	valid_SORT_TYPES							= [r'alphabetic_files_folders'.lower(), r'alphabetic'.lower(), r'win_files_folders'.lower(), r'win_files'.lower(), r'random'.lower()]
 	SORT_TYPE									= valid_SORT_TYPES[0]
 	
 	TEMP_FOLDER									= UTIL.fully_qualified_directory_no_trailing_backslash(r'.\TEMP')				# TEMP_FOLDER
