@@ -148,7 +148,7 @@ Look for and change the settings you need. Please be careful or you will have to
 
 **Optionally:**    
 - `RECURSIVE` - whether to recurse into the subfolders of `ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS`
-- `SORT_TYPE` - one of ['alphabetic_files_folders', 'alphabetic', 'win_files_folders.lower()', 'win_files', 'random']. "win" types sort using numbers in filenames as well regardless of their text length in the filename, per Windows File Explorer
+- `SORT_TYPE` - one of ['alphabetic_files_folders', 'alphabetic', 'win_files_folders', 'win_files', 'random']. "win" types sort using numbers in filenames as well regardless of their text length in the filename, per Windows File Explorer
 - `TARGET_RESOLUTION` - `HD 1080p` is the sweet spot, testing shows. PAL `1080p_pal`, or in NTSC land `1080p_ntsc` to get 29.976 framerate
 - `TARGET_VIDEO_BITRATE` ... the defaults are close enough, use one of them matching `TARGET_RESOLUTION`
 - `DURATION_PIC_SEC` - in seconds, duration that each pic is displayed in the slideshow
