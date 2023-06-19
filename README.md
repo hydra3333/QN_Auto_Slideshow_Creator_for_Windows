@@ -182,7 +182,7 @@ settings = {
 	'DURATION_MAX_VIDEO_SEC':	7200.0,		# in seconds, maximum duration each video clip is shown in the slideshow
 	'TARGET_BACKGROUND_AUDIO_CODEC':	'aac',		# One of ['aac', 'libfdk_aac']. Only if you have an FFmpeg built with "fdk_aac" can use use that.
 	'TARGET_AUDIO_BACKGROUND_NORMALIZE_HEADROOM_DB':	-18,		# normalize background audio to this maximum db
-	'TARGET_AUDIO_BACKGROUND_GAIN_DURING_OVERLAY':	-30,		# how many DB to reduce backround audio during video clip audio overlay
+	'TARGET_AUDIO_BACKGROUND_GAIN_DURING_OVERLAY':	-26,		# how many DB to reduce backround audio during video clip audio overlay
 	'TARGET_AUDIO_SNIPPET_NORMALIZE_HEADROOM_DB':	-12,		# normalize video clip audio to this maximum db; camera vids are quieter so gain them
 	'MAX_FILES_PER_CHUNK':	150,		# how many images/videos to process in each chunk (more=slower)
 	'DEBUG':	False,		# see and regret seeing, ginormous debug output
