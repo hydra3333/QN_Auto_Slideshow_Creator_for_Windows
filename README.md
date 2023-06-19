@@ -1,7 +1,5 @@
 # Q'N Auto Slideshow Creator for Windows   
 
-# Oops, temporarily broken    
-
 Download / Setup / Configure then Fire-and-wait-a-long-time.    
 
 A python3/vapoursynth script using ffmpeg to create a 'HD' .mp4 slideshow
@@ -150,6 +148,7 @@ Look for and change the settings you need. Please be careful or you will have to
 
 **Optionally:**    
 - `RECURSIVE` - whether to recurse into the subfolders of `ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS`
+- `SORT_TYPE` - one of ['alphabetic_files_folders', 'alphabetic', 'win_files_folders.lower()', 'win_files', 'random']. "win" types sort using numbers in filenames as well regardless of their text length in the filename, per Windows File Explorer
 - `TARGET_RESOLUTION` - `HD 1080p` is the sweet spot, testing shows. PAL `1080p_pal`, or in NTSC land `1080p_ntsc` to get 29.976 framerate
 - `TARGET_VIDEO_BITRATE` ... the defaults are close enough, use one of them matching `TARGET_RESOLUTION`
 - `DURATION_PIC_SEC` - in seconds, duration that each pic is displayed in the slideshow
@@ -168,6 +167,7 @@ settings = {
 													r'H:\our_home_pics\1994',
 													r'H:\our_home_pics\1995',
 												],	# a list, one or more folders to look in for slideshow pics/videos. the r in front of the string is CRITICAL
+	'SORT_TYPE':	'alphabetic_files_folders',		# One of ['alphabetic_files_folders', 'alphabetic', 'win_files_folders.lower()', 'win_files', 'random']. "win" types sort using numbers in filenames as well regardless of their text length in the filename, per Windows File Explorer.
 	'RECURSIVE':	True,		# case sensitive: whether to recurse the source folder(s) looking for slideshow pics/videos
 	'TEMP_FOLDER':	r'D:\QN_Auto_Slideshow_Creator_for_Windows\TEMP',		# folder where temporary files go; USE A DISK WITH LOTS OF SPARE DISK SPACE - CIRCA 6 GB PER 100 PICS/VIDEOS
 	'BACKGROUND_AUDIO_INPUT_FOLDER':	r'H:\some_existing_directory\BACKGROUND_AUDIO_INPUT_FOLDER',		# Folder containing audio files (in sequence) to make an audio background track (it is not looped if too short). No files = silent background.
