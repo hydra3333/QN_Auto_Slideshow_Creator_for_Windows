@@ -1,5 +1,7 @@
 # Q'N Auto Slideshow Creator for Windows   
 
+# Oops, temporarily broken    
+
 Download / Setup / Configure then Fire-and-wait-a-long-time.    
 
 A python3/vapoursynth script using ffmpeg to create a 'HD' .mp4 slideshow
