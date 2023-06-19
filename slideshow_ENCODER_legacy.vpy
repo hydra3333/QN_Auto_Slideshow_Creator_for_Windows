@@ -955,7 +955,7 @@ def resize_clip(clip,w,h):
 	if c.format.color_family==vs.RGB:
 		#rgb to YUV, perhaps only for png images, figure out what matrix out is needed ... use the HD one REC.709
 		if A_DEBUG_IS_ON: print_DEBUG(f'resize_clip: incoming clip properties before RGB resize: c.format.name="{c.format.name}" c.format.color_family="{c.format.color_family}" c.format.sample_type="{c.format.sample_type}" c.format.bits_per_sample="{c.format.bits_per_sample}" c.format.bytes_per_sample="{c.format.bytes_per_sample}" c.format.num_planes="{c.format.num_planes}" c.format.subsampling_w="{c.format.subsampling_w}" c.format.subsampling_h="{c.format.subsampling_h}"')
-		with d.get_frame(0) as f:
+		with c.get_frame(0) as f:
 			if A_DEBUG_IS_ON: print_DEBUG(f'resize_clip: incoming frame properties before RGB resize: w={c.width} h={c.height} fps={c.fps} {objPrettyPrint.pformat(c)} {objPrettyPrint.pformat(f.props)}')
 			pass
 		if A_DEBUG_IS_ON: print_DEBUG(f'resize_clip: TARGET resize properties: width={w}, height={h}, format={objSettings.WORKING_PIXEL_FORMAT}, objSettings.TARGET_COLOR_RANGE_I_ZIMG={objSettings.TARGET_COLOR_RANGE_I_ZIMG}), primaries={objSettings.TARGET_COLOR_PRIMARIES_I}, transfer={objSettings.TARGET_COLOR_TRANSFER_I},  matrix={objSettings.TARGET_COLORSPACE_MATRIX_I}')
