@@ -142,6 +142,10 @@ def load_settings():
 	SLIDESHOW_SETTINGS_MODULE_FILENAME			= UTIL.fully_qualified_filename(os.path.join(r'.', SLIDESHOW_SETTINGS_MODULE_NAME + '.py'))
 
 	ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS	= [ UTIL.fully_qualified_directory_no_trailing_backslash(r'.') ]
+	
+	valid_SORT_TYPES							= [r'alphabetic_files_folders'.lower(), r'alphabetic'.lower(), r'win_files_folders.lower()', r'win_files'.lower(), r'random'.lower()]
+	SORT_TYPE									= valid_SORT_TYPES[0]
+	
 	TEMP_FOLDER									= UTIL.fully_qualified_directory_no_trailing_backslash(r'.\TEMP')				# TEMP_FOLDER
 	PIC_EXTENSIONS								= [ r'.png', r'.jpg', r'.jpeg', r'.gif' ]
 	VID_EXTENSIONS								= [ r'.mp4', r'.mpeg4', r'.mpg', r'.mpeg', r'.avi', r'.mjpeg', r'.3gp', r'.mov' ]
@@ -301,6 +305,8 @@ def load_settings():
 		'SLIDESHOW_SETTINGS_MODULE_FILENAME':				SLIDESHOW_SETTINGS_MODULE_FILENAME,
 		
 		'ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS': 		ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS,	# this is the ONLY file/folder thing in the NEW version that is actually already a LIST
+		'valid_SORT_TYPES':									valid_SORT_TYPES,
+		'SORT_TYPE':										SORT_TYPE,
 		'TEMP_FOLDER':										TEMP_FOLDER,
 		'PIC_EXTENSIONS' :									PIC_EXTENSIONS,
 		'VID_EXTENSIONS' :									VID_EXTENSIONS,
@@ -462,7 +468,8 @@ def load_settings():
 	if 'valid_FFMPEG_ENCODER'                in user_specified_settings_dict: del user_specified_settings_dict['valid_FFMPEG_ENCODER']
 	if 'valid_TARGET_RESOLUTION'             in user_specified_settings_dict: del user_specified_settings_dict['valid_TARGET_RESOLUTION']
 	if 'valid_TARGET_BACKGROUND_AUDIO_CODEC' in user_specified_settings_dict: del user_specified_settings_dict['valid_TARGET_BACKGROUND_AUDIO_CODEC']
-	
+	if 'valid_SORT_TYPES'                    in user_specified_settings_dict: del user_specified_settings_dict['valid_SORT_TYPES']
+
 	final_settings_dict = {**default_settings_dict, **user_specified_settings_dict}	
 	
 	# FOR NOW, NOT USING THIS METHOD:
@@ -537,8 +544,13 @@ def load_settings():
 	final_settings_dict['TARGET_FPSNUM'] = TARGET_FPSNUM										# poke back the right value based on specified TARGET_RESOLUTION
 	final_settings_dict['TARGET_FPSDEN'] = TARGET_FPSDEN										# poke back the right value based on specified TARGET_RESOLUTION
 
+	if final_settings_dict['SORT_TYPE'].lower() not in valid_SORT_TYPES:
+		print(f'load_settings: WARNING: SORT_TYPE "{final_settings_dict["SORT_TYPE"]}" not one of {valid_SORT_TYPES}, defaulting to "{SORT_TYPE}"',flush=True,file=sys.stderr)
+		final_settings_dict['SORT_TYPE'] = valid_SORT_TYPES[0]
+	SORT_TYPE = final_settings_dict['SORT_TYPE']
+
 	if final_settings_dict['FFMPEG_ENCODER'].lower() not in valid_FFMPEG_ENCODER:
-		print(f'load_settings: WARNING: FFMPEG_ENCODER "{final_settings_dict["FMPEG_ENCODER"]}" not one of {valid_FFMPEG_ENCODER}, defaulting to "{FFMPEG_ENCODER}"',flush=True,file=sys.stderr)
+		print(f'load_settings: WARNING: FFMPEG_ENCODER "{final_settings_dict["FFMPEG_ENCODER"]}" not one of {valid_FFMPEG_ENCODER}, defaulting to "{FFMPEG_ENCODER}"',flush=True,file=sys.stderr)
 		final_settings_dict['FFMPEG_ENCODER'] = valid_FFMPEG_ENCODER[0]
 	FFMPEG_ENCODER = final_settings_dict['FFMPEG_ENCODER']
 
@@ -743,6 +755,7 @@ def load_settings():
 		valid_bitrates = [ { i : valid_TARGET_RESOLUTION[i]["BITRATE"] } for i in valid_TARGET_RESOLUTION.keys() ]
 		specially_formatted_settings_list =	[
 										[ 'ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS',	ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS,	r'a list, one or more folders to look in for slideshow pics/videos. the r in front of the string is CRITICAL' ],
+										[ 'SORT_TYPE',									SORT_TYPE,									f'One of {valid_SORT_TYPES}. "win" types sort using numbers in filenames as well regardless of their text length in the filename, per Windows File Explorer.' ],
 										[ 'RECURSIVE',									RECURSIVE,									r'case sensitive: whether to recurse the source folder(s) looking for slideshow pics/videos' ],
 										[ 'TEMP_FOLDER',								TEMP_FOLDER,								r'folder where temporary files go; USE A DISK WITH LOTS OF SPARE DISK SPACE - CIRCA 6 GB PER 100 PICS/VIDEOS' ],
 										[ 'BACKGROUND_AUDIO_INPUT_FOLDER',				BACKGROUND_AUDIO_INPUT_FOLDER,				r'Folder containing audio files (in sequence) to make an audio background track (it is not looped if too short). No files = silent background.' ],

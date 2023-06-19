@@ -86,6 +86,38 @@ global ALL_CHUNKS_COUNT_OF_FILES
 #********************************************************************************************************
 
 ###
+def sort_files_list(files_list, sort_type='alphabetic_files_folders'):
+	# Call like:
+	#		# preset by load_SETTINGS: 
+	#		#		SETTINGS_DICT["valid_SORT_TYPES"] = [r'alphabetic_files_folders'.lower(), r'alphabetic'.lower(), r'win_files_folders.lower()', r'win_files'.lower(), r'random'.lower()]
+	#		#		SETTINGS_DICT["SORT_TYPE"]
+	#		current_directory = '/path/to/directory'
+	#		glob_var = "**/*.*"
+	#		files_LIST = files_LIST = [entry for entry in Path(current_directory).glob(glob_var) if (entry.is_file() and entry.suffix.lower() in SETTINGS_DICT['EXTENSIONS'])]
+	#		sorted_files = sort_files_list(files_LIST, sort_type=SETTINGS_DICT["SORT_TYPE"])
+	#
+	import ctypes
+	import random
+	from pathlib import Path
+	if sort_type.lower() == 'alphabetic'.lower():
+		return sorted(files_list, key=lambda p: p.name.lower())
+	elif sort_type.lower() == 'alphabetic_files_folders'.lower():
+		return sorted(files_list, key=lambda p: (p.parent.name.lower(), p.name.lower()))
+	elif sort_type.lower() == 'win_files'.lower():
+		str_cmp_logical = ctypes.windll.Shlwapi.StrCmpLogicalW
+		windows_sort_key = lambda path: str_cmp_logical(str(path).encode('utf-16le'), str(path).encode('utf-16le'))
+		return sorted(files_list, key=lambda p: (p.parent.lower(), windows_sort_key(p.name.lower())))
+	elif sort_type.lower() == 'win_files_folders'.lower():
+		str_cmp_logical = ctypes.windll.Shlwapi.StrCmpLogicalW
+		windows_sort_key_full_path = lambda path: [str_cmp_logical(str(component).encode('utf-16le'), str(component).encode('utf-16le')) for component in Path(path).parts]
+		return sorted(files_list, key=lambda p: windows_sort_key_full_path(p))
+	elif sort_type.lower() == 'random'.lower():
+		random.shuffle(files_list)
+		return files_list
+	else:
+		raise ValueError(f'CONTROLLER: ERROR: Invalid Sort Type specified: "{sort_type}" Must be one of {SETTINGS_DICT["valid_SORT_TYPES"]}')
+
+###
 def find_all_chunks():
 	# only use globals: SETTINGS_DICT, DEBUG
 
@@ -183,11 +215,10 @@ def find_all_chunks():
 	chunk_id = -1	# base 0 chunk id, remember
 	chunks = {}
 	file_list_in_chunk = []
-	#for Directory in sorted(SETTINGS_DICT['ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS']):	# Sort the list provided by the user prior to using it
 	for Directory in SETTINGS_DICT['ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS']:				# Use the order of folders as specified by the user in the LIST, unsorted
 		current_Directory = Directory
-		#files = sorted(Path(current_Directory).glob(glob_var)) 									# generator of all files in a directory, files starting with . won't be matched by default
-		files = sorted( (entry for entry in Path(current_Directory).glob(glob_var) if (entry.is_file() and entry.suffix.lower() in SETTINGS_DICT['EXTENSIONS'])), key=lambda p: (p.parent.lower(), p.name.lower()) )  # consider files but exclude directories in the generator, sorting them
+		files_LIST = [entry for entry in Path(current_Directory).glob(glob_var) if (entry.is_file() and entry.suffix.lower() in SETTINGS_DICT['EXTENSIONS'])]
+		files = sort_files_list(files_LIST, sort_type=SETTINGS_DICT["SORT_TYPE"])
 		for filename in files:		# filename type='<class 'pathlib.WindowsPath'>'
 			if UTIL.DEBUG:	print(f"DEBUG: find_all_chunks: found file '{filename}', re-checking if file is in '{SETTINGS_DICT['EXTENSIONS']}'",flush=True)
 			if filename.suffix.lower() in SETTINGS_DICT['EXTENSIONS']:
@@ -358,8 +389,9 @@ def audio_standardize_and_import_background_audios_from_folder(background_audio_
 	glob_var="*.*"				# non-recursive
 	c = 0
 	v = 0
-	#files = sorted(os.listdir(background_audio_folder))
-	files = sorted( (entry for entry in Path(background_audio_folder).glob(glob_var) if (entry.is_file() and entry.suffix.lower() in extensions)), key=lambda p: (p.parent.lower(), p.name.lower()) )  # consider files but exclude directories in the generator, sorting them
+	#files = sorted( (entry for entry in Path(background_audio_folder).glob(glob_var) if (entry.is_file() and entry.suffix.lower() in extensions)), key=lambda p: (p.parent.lower(), p.name.lower()) )  # consider files but exclude directories in the generator, sorting them
+	files_LIST = [entry for entry in Path(background_audio_folder).glob(glob_var) if (entry.is_file() and entry.suffix.lower() in extensions)]
+	files = sort_files_list(files_LIST, sort_type='alphabetic_files_folders')	# always a fixed sort order for background audio
 	for filename in files:
 		c = c + 1
 		if UTIL.DEBUG:	print(f"DEBUG: audio_standardize_and_import_background_audios_from_folder: found file '{filename}', checking if file is in '{extensions}'",flush=True)
