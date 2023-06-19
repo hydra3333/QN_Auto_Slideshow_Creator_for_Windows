@@ -52,8 +52,8 @@ $regex_month_format_YYYYMM = '(?x)	# YYYY-MM YYYY-M
 	(?<year>[0-9]{4})[-_.]
 	(?<month>[0-9]{1,2})
 )'
-
-
+if ($true) {
+Write-Host "START FOLDER RENAMES"
 # Pass 1: Update folder names
 Get-ChildItem -Path $TopFolder -Recurse -Directory | ForEach-Object {
 	$folderPath = $_.FullName
@@ -111,10 +111,14 @@ Get-ChildItem -Path $TopFolder -Recurse -Directory | ForEach-Object {
 		#Write-Host "FOLDER Current Name: '$folderPath' Proposed New Name: '$newFolderName'"
 		Write-Host "Rename-Item -LiteralPath $folderPath -NewName $newFolderName -Force"
 		# Uncomment the line below to perform the rename
-		# Rename-Item -LiteralPath $folderPath -NewName $newFolderName -Force
+		Rename-Item -LiteralPath $folderPath -NewName $newFolderName -Force
 	}
 }
+Write-Host "END FOLDER RENAMES"
+}
 
+if ($true) {
+Write-Host "START FILE FOLDER RENAMES"
 # Pass 2: Update file names
 Get-ChildItem -Path $TopFolder -Recurse -File | ForEach-Object {
 	$filePath = $_.FullName
@@ -172,6 +176,8 @@ Get-ChildItem -Path $TopFolder -Recurse -File | ForEach-Object {
 		#Write-Host "FILE Current Name: '$filePath' Proposed New Name: '$newFileName'"
 		Write-Host "Rename-Item -LiteralPath $filePath -NewName $newFileName -Force"
 		# Uncomment the line below to perform the rename
-		# Rename-Item -LiteralPath $filePath -NewName $newFileName -Force
+		Rename-Item -LiteralPath $filePath -NewName $newFileName -Force
 	}
+}
+Write-Host "END FILE RENAMES"
 }
