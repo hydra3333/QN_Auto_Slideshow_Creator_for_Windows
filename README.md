@@ -164,9 +164,9 @@ Here's an example of settings with edits already made:
 ```
 settings = {
 	'ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS':	[
-													r'H:\our_home_pics\1994',
-													r'H:\our_home_pics\1995',
-												],	# a list, one or more folders to look in for slideshow pics/videos. the r in front of the string is CRITICAL
+		r'H:\our_home_pics\1994',
+		r'H:\our_home_pics\1995',
+	],	# a list, one or more folders to look in for slideshow pics/videos. the r in front of the string is CRITICAL
 	'SORT_TYPE':	'alphabetic_files_folders',		# One of ['alphabetic_files_folders', 'alphabetic', 'win_files_folders.lower()', 'win_files', 'random']. "win" types sort using numbers in filenames as well regardless of their text length in the filename, per Windows File Explorer.
 	'RECURSIVE':	True,		# case sensitive: whether to recurse the source folder(s) looking for slideshow pics/videos
 	'TEMP_FOLDER':	r'D:\QN_Auto_Slideshow_Creator_for_Windows\TEMP',		# folder where temporary files go; USE A DISK WITH LOTS OF SPARE DISK SPACE - CIRCA 6 GB PER 100 PICS/VIDEOS
