@@ -53,7 +53,7 @@ IF NOT EXIST "!input_mp4!" (
 
 REM set the bitrates or DVD
 set  "v_bitrate=9M"
-set  "v_min=1M"
+set  "v_min=7M"
 set  "v_max=9.2M"
 set  "v_buf=2M"
 set  "v_pkt=2048"
