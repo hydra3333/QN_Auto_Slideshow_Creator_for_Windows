@@ -1123,6 +1123,7 @@ if __name__ == "__main__":
 							'-c:a', 'copy',
 							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_ENCODER),
 							'-c:v', 'libx264',
+							'-preset', 'veryslow',
 							'-colorspace', 'bt709', 
 							'-color_primaries', 'bt709', 
 							'-color_trc', 'bt709', 
