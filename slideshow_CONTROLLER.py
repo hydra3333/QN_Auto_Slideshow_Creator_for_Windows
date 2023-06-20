@@ -488,6 +488,10 @@ def encode_chunk_using_vsipe_ffmpeg(individual_chunk_id):
 							'-an',
 							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_ENCODER),
 							'-c:v', 'ffv1', '-level', '3', '-coder', '1', '-context', '1', '-slicecrc', '1',
+							'-colorspace', 'bt709', 
+							'-color_primaries', 'bt709', 
+							'-color_trc', 'bt709', 
+							'-color_range', 'pc',
 							'-y', proposed_ffv1_mkv_filename
 							]
 	# this vspipe commandline is for DEBUGGING only
@@ -1106,6 +1110,10 @@ if __name__ == "__main__":
 							'-loglevel', loglevel, 
 							stats, 
 							benchmark,
+							'-colorspace', 'bt709', 
+							'-color_primaries', 'bt709', 
+							'-color_trc', 'bt709', 
+							'-color_range', 'pc',
 							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_DECODER),
 							'-i', background_audio_with_overlayed_snippets_filename,
 							'-f', 'concat', '-safe', '0', '-i', temporary_ffmpeg_concat_list_filename,
@@ -1115,7 +1123,10 @@ if __name__ == "__main__":
 							'-c:a', 'copy',
 							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_ENCODER),
 							'-c:v', 'libx264',
-							'-preset', 'veryslow',
+							'-colorspace', 'bt709', 
+							'-color_primaries', 'bt709', 
+							'-color_trc', 'bt709', 
+							'-color_range', 'pc',							'-preset', 'veryslow',
 							'-refs', '3',  			# Set the number of reference frames to 3 SO THAT THE RESULTING MP4 IS TV COMPATIBLE !!! (it is 16 by default, which will not play on TVs)
 							#'-crf', '22', 			# use CRF so that we do not have to guess bitrates
 							'-b:v', SETTINGS_DICT['TARGET_VIDEO_BITRATE'], 			# 4.5M is ok (HQ) for h.264 1080p25 slideshow material; instead of crf 22
@@ -1132,6 +1143,11 @@ if __name__ == "__main__":
 							'-hide_banner', 
 							'-loglevel', loglevel, 
 							stats, 
+							benchmark,
+							'-colorspace', 'bt709', 
+							'-color_primaries', 'bt709', 
+							'-color_trc', 'bt709', 
+							'-color_range', 'pc',
 							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_DECODER),
 							'-i', background_audio_with_overlayed_snippets_filename,
 							'-f', 'concat', '-safe', '0', '-i', temporary_ffmpeg_concat_list_filename,
@@ -1141,6 +1157,10 @@ if __name__ == "__main__":
 							'-c:a', 'copy',
 							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_ENCODER),
 							'-c:v', 'h264_nvenc', 
+							'-colorspace', 'bt709', 
+							'-color_primaries', 'bt709', 
+							'-color_trc', 'bt709', 
+							'-color_range', 'pc',
 							'-pix_fmt', 'nv12', 
 							'-preset', 'p7', 
 							'-multipass', 
