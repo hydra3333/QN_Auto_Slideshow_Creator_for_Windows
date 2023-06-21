@@ -35,7 +35,8 @@ Testing shows `4k` slideshows of home pictures does not appear any better (and s
 The legacy encoder logic does not handle 576p nor 480p resolutions (Anamorphic).
 
 If you wanted a .mpg file to burn to DVD then use another tool, eg FFmpeg, to convert (transcode)
-the final mp4. It's easy enough.    
+the final mp4. It's easy enough. There's a couple of .bat files included, eg `slideshow_make_mpg_for_pal-dvd_from_pal-mp4.bat`
+as examples. Drag and drop a slideshow .mp4 file onto it and it'll create a new .mpg file from it.     
 
 # How-to : short version
 
