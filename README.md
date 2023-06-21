@@ -144,7 +144,7 @@ Look for and change the settings you need. Please be careful or you will have to
 
 **At a minimum:**
 - `ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS` - specify one or more quoted and comma separated Folder names of pics/videos
-- `BACKGROUND_AUDIO_INPUT_FOLDER` - specify a Folder containing audio files (in sequence) to make an audio background track (it is not looped if too short). No files in folder = silent background
+- `BACKGROUND_AUDIO_INPUT_FOLDER` - specify a Folder containing audio files (in sequence) to make an audio background track (it is random looped if too short). No files in folder = silent background
 - `FINAL_MP4_WITH_AUDIO_FILENAME` - specify the directory and filename of the FINAL slideshow .mp4    
 
 **Optionally:**    
@@ -168,11 +168,11 @@ settings = {
 		r'H:\our_home_pics\1994',
 		r'H:\our_home_pics\1995',
 	],	# a list, one or more folders to look in for slideshow pics/videos. the r in front of the string is CRITICAL
+	'FINAL_MP4_WITH_AUDIO_FILENAME':	r'D:\some_existing_directory\slideshow_1994_1995.mp4',		# the filename of the FINAL slideshow .mp4
+	'BACKGROUND_AUDIO_INPUT_FOLDER':	r'H:\some_existing_directory\BACKGROUND_AUDIO_INPUT_FOLDER',		# Folder containing audio files (in sequence) to make an audio background track (it is random looped if too short). No files = silent background.
 	'SORT_TYPE':	'alphabetic_files_folders',		# One of ['alphabetic_files_folders', 'alphabetic', 'win_files_folders', 'win_files', 'random']. "win" types sort using numbers in filenames as well regardless of their text length in the filename, per Windows File Explorer.
 	'RECURSIVE':	True,		# case sensitive: whether to recurse the source folder(s) looking for slideshow pics/videos
 	'TEMP_FOLDER':	r'D:\QN_Auto_Slideshow_Creator_for_Windows\TEMP',		# folder where temporary files go; USE A DISK WITH LOTS OF SPARE DISK SPACE - CIRCA 6 GB PER 100 PICS/VIDEOS
-	'BACKGROUND_AUDIO_INPUT_FOLDER':	r'H:\some_existing_directory\BACKGROUND_AUDIO_INPUT_FOLDER',		# Folder containing audio files (in sequence) to make an audio background track (it is not looped if too short). No files = silent background.
-	'FINAL_MP4_WITH_AUDIO_FILENAME':	r'D:\some_existing_directory\slideshow_1994_1995.mp4',		# the filename of the FINAL slideshow .mp4
 	'SUBTITLE_DEPTH':	0,		# how many folders deep to display in subtitles; use 0 for no subtitling
 	'SUBTITLE_FONTSIZE':	18,		# fontsize for subtitles, leave this alone unless confident
 	'SUBTITLE_FONTSCALE':	1.0,		# fontscale for subtitles, leave this alone unless confident
