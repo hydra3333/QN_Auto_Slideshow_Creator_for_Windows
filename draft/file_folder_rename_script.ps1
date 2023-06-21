@@ -1,7 +1,10 @@
 # Sanitize FolderNames and FileNames in a folder tree.
 # Remove commas, ampersands, spaces and whatnot and replace them with underscores.
 # Identify a date in a Folder/File name and rename the folder/file with that date moved
-# to the front of the name in the format YYYY-MM-DD ... creatly assists with sorting.
+# to the front of the name in the format YYYY-MM-DD ... greatly assists with sorting.
+#
+# NEVER use this on an original source tree - it renames files/folders
+# ... you know before you start that you'll not get the original folder/file names back again.
 #
 # Invoke Like:
 #	@echo off
