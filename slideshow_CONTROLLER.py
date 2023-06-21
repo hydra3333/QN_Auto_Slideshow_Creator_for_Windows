@@ -405,7 +405,7 @@ def audio_standardize_and_import_background_audios_from_folder(background_audio_
 	print(f"CONTROLLER: audio_standardize_and_import_background_audios_from_folder: found {v} valid background audio files out of {c}, duration={UTIL.format_duration_ms_to_hh_mm_ss_hhh(len(background_audio))}, in '{extensions}' in '{background_audio_folder}', ",flush=True)
 
 	# return an empty audio of zero length if no background files were found
-	return background_audio
+	return files_LIST, background_audio
 
 def audio_create_standardized_silence(duration_ms):
 	# use global SETTINGS_DICT for the convert and import audio
@@ -891,37 +891,56 @@ if __name__ == "__main__":
 	# rely on multi-used settings variables defined in main
 	
 	# Import background audio files.
-	background_audio = audio_standardize_and_import_background_audios_from_folder(background_audio_input_folder, extensions=['.mp2', '.mp3', '.mp4', '.m4a', '.wav', '.flac', '.aac', '.ogg', '.wma'])
+	background_audio_files_LIST, background_audio = audio_standardize_and_import_background_audios_from_folder(background_audio_input_folder, extensions=['.mp2', '.mp3', '.mp4', '.m4a', '.wav', '.flac', '.aac', '.ogg', '.wma'])
 	
 	# Generate a silence background if no valid background audio files found
 	if len(background_audio) <=0:
 		try:
-			print(f"WARNING: CONTROLLER: generate silence as background_audio since len(background_audio) ({len(background_audio)}) <=0 ... probably no background audio files found",flush=True)
+			print(f"WARNING: CONTROLLER: generating 100% silence as background_audio since len(background_audio) ({len(background_audio)}) <=0 ... probably no background audio files found",flush=True)
 			background_audio = audio_create_standardized_silence(final_video_duration_ms)
 		except Exception as e:
-			print(f"CONTROLLER: overlay_snippet_audio_onto_background_audio: Unexpected error for background_audio from audio_create_standardized_silence({final_video_duration_ms})\n{str(e)}",flush=True,file=sys.stderr)
+			print(f"CONTROLLER: ERROR: Unexpected error for background_audio from audio_create_standardized_silence({final_video_duration_ms})\n{str(e)}",flush=True,file=sys.stderr)
 			sys.exit(1)
 
-	# now RE-normalize the background_audio
-	#background_audio = background_audio.apply_gain(target_audio_background_normalize_headroom_db - background_audio.max_dBFS)
-
-	# Trim or pad-with-silence the background audio to match the duration final_video_frame_count .. in case concatenated background audio files is too short
+	# Pad the background audio to match the duration final_video_frame_count, in case concatenated background audio files is too short
 	background_audio_len = len(background_audio)
 	if background_audio_len < final_video_duration_ms:
-		padding_duration = final_video_duration_ms - background_audio_len
-		try:
-			if UTIL.DEBUG: print(f"DEBUG: CONTROLLER: overlay_snippet_audio_onto_background_audio: background_audio_len {background_audio_len}ms, padding background_audio with silence to length {background_audio_len+padding_duration}ms",flush=True)
-			padding_audio = audio_create_standardized_silence(padding_duration)
-		except Exception as e:
-			print(f"CONTROLLER: overlay_snippet_audio_onto_background_audio: padding_audio Unexpected error from AudioSegment.silent(duration={padding_duration})\n{str(e)}",flush=True,file=sys.stderr)
-			sys.exit(1)
-		if UTIL.DEBUG: print(f"DEBUG: CONTROLLER: overlay_snippet_audio_onto_background_audio: background_audio_len {background_audio_len}ms, padding with silence to {background_audio_len+padding_duration}ms",flush=True)
-		background_audio = background_audio + padding_audio
-		del padding_audio
+		if len(background_audio_files_LIST) <= 0:	# if no audio files we can pick random ones from, so pad with silence
+			# pad with silence
+			print(f"CONTROLLER: background_audio duration {background_audio_len}ms < slideshow video duration {final_video_duration_ms}ms, no background audio files loaded so padding with silence.",flush=True)
+			padding_duration = final_video_duration_ms - background_audio_len
+			try:
+				if UTIL.DEBUG: print(f"DEBUG: CONTROLLER: overlay_snippet_audio_onto_background_audio: background_audio_len {background_audio_len}ms, padding background_audio with silence to length {background_audio_len+padding_duration}ms",flush=True)
+				padding_audio = audio_create_standardized_silence(padding_duration)
+			except Exception as e:
+				print(f"CONTROLLER: ERROR: padding background audio Unexpected error from AudioSegment.silent(duration={padding_duration})\n{str(e)}",flush=True,file=sys.stderr)
+				sys.exit(1)
+			if UTIL.DEBUG: print(f"DEBUG: CONTROLLER: padding background audio  background_audio_len {background_audio_len}ms, padding with silence to {background_audio_len+padding_duration}ms",flush=True)
+			background_audio = background_audio + padding_audio
+			del padding_audio
+		else:										# audio files we can pick random ones from, so pad from them
+			# pad with random audios
+			print(f"CONTROLLER: background_audio duration {background_audio_len}ms < slideshow video duration {final_video_duration_ms}ms, {len(background_audio_files_LIST)} background audio files loaded so padding with random ones.",flush=True)
+			while len(background_audio) < final_video_duration_ms:
+				random_audio_filename = random.choice(background_audio_files_LIST)
+				print(f"CONTROLLER: padding background audio, with random audio '{random_audio_filename}'",flush=True)
+				random_audio = audio_standardize_and_import_file(random_audio_filename, target_audio_background_normalize_headroom_db, ignore_error_converting=True)
+				if random_audio is not None:
+					background_audio = background_audio + random_audio
+					del random_audio
 	else:
-		if UTIL.DEBUG: print(f"DEBUG: CONTROLLER: overlay_snippet_audio_onto_background_audio: background_audio_len {background_audio_len}ms, trimming to {final_video_duration_ms}ms",flush=True)
+		print(f"CONTROLLER: background_audio duration {background_audio_len}ms >= slideshow video duration {final_video_duration_ms}ms, no need to pad.",flush=True)
+	
+
+	if background_audio_len > final_video_duration_ms:
+		print(f"CONTROLLER: background_audio duration {background_audio_len}ms, trimming to {final_video_duration_ms}ms",flush=True)
 		background_audio = background_audio[:final_video_duration_ms]
+
+	# finished trimming/padding background audio
 	background_audio_len = len(background_audio)
+
+	# now RE-normalize the background_audio ... alread done during imports
+	#background_audio = background_audio.apply_gain(target_audio_background_normalize_headroom_db - background_audio.max_dBFS)
 
 	if UTIL.DEBUG:
 		debug_background_audio_input_filename = temporary_audio_filename + r'_DEBUG.BACKGROUND_AUDIO_TRIMMED' + '.mp4'
