@@ -5,7 +5,7 @@
 REM DRAG AND DROP A FOLDER NAME ONTO THIS BAT
 
 REM Sanitize FolderNames and FileNames in a folder tree.
-REM Remove commas, ampersands, spaces and whatnot and replacing them with underscores.
+REM Remove commas, ampersands, spaces and whatnot and replace them with underscores.
 REM Identify a date in a Folder/File name and renaming the folder/file with that date moved
 REM to the front of the name in the format YYYY-MM-DD ... creatly assists with sorting.
 

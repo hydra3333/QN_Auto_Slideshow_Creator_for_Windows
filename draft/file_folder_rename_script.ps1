@@ -1,5 +1,5 @@
 # Sanitize FolderNames and FileNames in a folder tree.
-# Remove commas, ampersands, spaces and whatnot and replacing them with underscores.
+# Remove commas, ampersands, spaces and whatnot and replace them with underscores.
 # Identify a date in a Folder/File name and renaming the folder/file with that date moved
 # to the front of the name in the format YYYY-MM-DD ... creatly assists with sorting.
 #
