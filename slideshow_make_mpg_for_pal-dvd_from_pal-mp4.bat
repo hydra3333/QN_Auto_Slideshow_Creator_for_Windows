@@ -74,7 +74,7 @@ set "cmd_DVD=!cmd_DVD! -sws_flags lanczos+accurate_rnd+full_chroma_int+full_chro
 set "cmd_DVD=!cmd_DVD! -filter_complex "scale=720:576:flags='lanczos+accurate_rnd+full_chroma_int+full_chroma_inp',format=yuv420p,setdar=16/9" "
 set "cmd_DVD=!cmd_DVD! -target pal-dvd "
 REM set "cmd_DVD=!cmd_DVD! -r %v_framerate% "
-set "cmd_DVD=!cmd_DVD! -g %v_gop_size% "
+set "cmd_DVD=!cmd_DVD! -g %v_gop_size% -mpv_flags +strict_gop "
 set "cmd_DVD=!cmd_DVD! -b:v %v_bitrate% -minrate:v %v_min% -maxrate:v %v_max% -bufsize %v_buf% -packetsize %v_pkt% -muxrate %v_mux% "
 set "cmd_DVD=!cmd_DVD! -c:a ac3 "
 set "cmd_DVD=!cmd_DVD! -ac 2 "
