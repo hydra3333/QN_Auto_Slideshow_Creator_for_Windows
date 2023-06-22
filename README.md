@@ -176,7 +176,7 @@ settings = {
 	'SUBTITLE_DEPTH':	0,		# how many folders deep to display in subtitles; use 0 for no subtitling
 	'SUBTITLE_FONTSIZE':	18,		# fontsize for subtitles, leave this alone unless confident
 	'SUBTITLE_FONTSCALE':	1.0,		# fontscale for subtitles, leave this alone unless confident
-	'DURATION_PIC_SEC':	3.0,		# in seconds, duration each pic is shown in the slideshow
+	'DURATION_PIC_SEC':	4.0,		# in seconds, duration each pic is shown in the slideshow
 	'DURATION_CROSSFADE_SECS':	0.5,		# in seconds duration crossfade between pic, leave this alone unless confident
 	'CROSSFADE_TYPE':	'random',		# random is a good choice, leave this alone unless confident
 	'CROSSFADE_DIRECTION':	'left',		# Please leave this alone unless really confident

@@ -204,7 +204,7 @@ def load_settings():
 	SUBTITLE_DEPTH								= int(0)
 	SUBTITLE_FONTSIZE							= int(18)
 	SUBTITLE_FONTSCALE							= float(1.0)
-	DURATION_PIC_SEC							= float(3.0)
+	DURATION_PIC_SEC							= float(4.0)
 	DURATION_CROSSFADE_SECS						= float(0.5)
 	CROSSFADE_TYPE								= r'random'
 	CROSSFADE_DIRECTION							= r'left'
