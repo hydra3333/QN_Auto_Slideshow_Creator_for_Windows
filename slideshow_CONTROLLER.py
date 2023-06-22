@@ -234,6 +234,7 @@ def find_all_chunks():
 													'chunk_id': chunk_id,
 													'chunk_fixed_json_filename' :				UTIL.fully_qualified_filename(SETTINGS_DICT['CURRENT_CHUNK_FILENAME']),		# always the same fixed filename
 													'proposed_ffv1_mkv_filename' :				UTIL.fully_qualified_filename(SETTINGS_DICT['CHUNK_ENCODED_FFV1_FILENAME_BASE'] + str(chunk_id).zfill(5) + r'.mkv'),	# filename related to chunk_id, with 5 digit zero padded sequential number
+													'proposed_h264_mkv_filename' :				UTIL.fully_qualified_filename(SETTINGS_DICT['CHUNK_ENCODED_H264_FILENAME_BASE'] + str(chunk_id).zfill(5) + r'.mkv'),	# filename related to chunk_id, with 5 digit zero padded sequential number
 													'num_frames_in_chunk' :						0,	# initialize to 0, filled in by encoder
 													'start_frame_num_in_chunk':					0,	# initialize to 0, filled in by encoder
 													'end_frame_num_in_chunk':					0,	# initialize to 0, filled in by encoder
@@ -343,7 +344,7 @@ def audio_standardize_and_import_file(audio_filename, headroom_db, ignore_error_
 			return None
 	else:
 		# this will crash if there's an error
-		subprocess.run(ffmpeg_commandline, check=True)
+		subprocess.run(ffmpeg_commandline, check=True)	# this will crash if there's an error
 
 	try:
 		audio = AudioSegment.from_file(temporary_audio_filename)
@@ -420,7 +421,7 @@ def audio_create_standardized_silence(duration_ms):
 	return audio
 
 ###
-def encode_chunk_using_vsipe_ffmpeg(individual_chunk_id):
+def encode_chunk_using_vsipe_ffmpeg_to_ffv1(individual_chunk_id):
 	# encode an individual chunk using vspipe and ffmpeg
 	# 
 	# using ChatGPT suggested method for non-blocking reads of subprocess stderr, stdout
@@ -428,7 +429,11 @@ def encode_chunk_using_vsipe_ffmpeg(individual_chunk_id):
 	global ALL_CHUNKS
 	global ALL_CHUNKS_COUNT
 	global ALL_CHUNKS_COUNT_OF_FILES
-	
+
+	if SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE'] != SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE_FFV1']:
+		print(f"CONTROLLER: ERROR: encode_chunk_using_vsipe_ffmpeg_to_ffv1: INVALID CHUNK_INTERIM_ENCODE_TYPE '{SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE']}' specified; must be '{SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE_FFV1']}'",flush=True)
+		sys.exit(1)
+
 	slideshow_ENCODER_legacy_path = SETTINGS_DICT['slideshow_ENCODER_legacy_path']
 
 	def enqueue_output(out, queue):
@@ -440,6 +445,7 @@ def encode_chunk_using_vsipe_ffmpeg(individual_chunk_id):
 	individual_chunk_dict = ALL_CHUNKS[str(individual_chunk_id)]
 	
 	chunk_json_filename = UTIL.fully_qualified_filename(individual_chunk_dict['chunk_fixed_json_filename'])					# always the same fixed filename
+
 	proposed_ffv1_mkv_filename = UTIL.fully_qualified_filename(individual_chunk_dict['proposed_ffv1_mkv_filename'])			# preset by find_all_chunks to: fixed filename plus a seqential 5-digit-zero-padded ending based on chunk_id + r'.mkv'
 
 	# remove any pre-existing files to be consumed and produced by the ENCODER
@@ -497,7 +503,7 @@ def encode_chunk_using_vsipe_ffmpeg(individual_chunk_id):
 	# this vspipe commandline is for DEBUGGING only
 	# it produces the vspipe output but directs it to NUL and does not invoke ffmpeg
 	# but it is still handy becuase it prodices updated snippet into into ALL_CHUNKS
-	vspipe_commandline_NUL = [ UTIL.VSPIPE_EXE, '--progress', '--container', 'y4m',  slideshow_ENCODER_legacy_path, 'NUL' ]
+	#vspipe_commandline_NUL = [ UTIL.VSPIPE_EXE, '--progress', '--container', 'y4m',  slideshow_ENCODER_legacy_path, 'NUL' ]
 
 	# run the vspipe -> ffmpeg with non-blocking reads of stderr and stdout
 
@@ -699,6 +705,433 @@ def encode_chunk_using_vsipe_ffmpeg(individual_chunk_id):
 
 	return
 
+###
+def encode_chunk_using_vsipe_ffmpeg_to_h264(individual_chunk_id):
+	# encode an individual chunk using vspipe and ffmpeg
+	# 
+	# using ChatGPT suggested method for non-blocking reads of subprocess stderr, stdout
+	global SETTINGS_DICT
+	global ALL_CHUNKS
+	global ALL_CHUNKS_COUNT
+	global ALL_CHUNKS_COUNT_OF_FILES
+
+	if SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE'] != SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE_H264']:
+		print(f"CONTROLLER: ERROR: encode_chunk_using_vsipe_ffmpeg_to_h264: INVALID CHUNK_INTERIM_ENCODE_TYPE '{SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE']}' specified; must be '{SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE_H264']}'",flush=True)
+		sys.exit(1)
+
+	slideshow_ENCODER_legacy_path = SETTINGS_DICT['slideshow_ENCODER_legacy_path']
+
+	individual_chunk_dict = ALL_CHUNKS[str(individual_chunk_id)]
+	
+	chunk_json_filename = UTIL.fully_qualified_filename(individual_chunk_dict['chunk_fixed_json_filename'])					# always the same fixed filename
+	
+	proposed_h264_mkv_filename = UTIL.fully_qualified_filename(individual_chunk_dict['proposed_h264_mkv_filename'])			# preset by find_all_chunks to: fixed filename plus a seqential 5-digit-zero-padded ending based on chunk_id + r'.mkv'
+
+	# remove any pre-existing files to be consumed and produced by the ENCODER
+	if os.path.exists(chunk_json_filename):
+		os.remove(chunk_json_filename)
+	if os.path.exists(proposed_h264_mkv_filename):
+		os.remove(proposed_h264_mkv_filename)
+
+	# create the fixed-filename chunk file consumed by the encoder; it contains the fixed-filename of the snippet file to produce
+	if UTIL.DEBUG:	print(f"DEBUG: CONTROLLER: in encoder loop: attempting to create chunk_json_filename='{chunk_json_filename}' for encoder to consume.",flush=True)
+	try:
+		with open(chunk_json_filename, 'w') as fp:
+			json.dump(individual_chunk_dict, fp, indent=4)
+	except Exception as e:
+		print(f"CONTROLLER: ERROR: dumping current chunk to JSON file: '{chunk_json_filename}' for encoder, chunk_id={individual_chunk_id}, individual_chunk_dict=\n{UTIL.objPrettyPrint.pformat(individual_chunk_dict)}\n{str(e)}",flush=True,file=sys.stderr)
+		sys.exit(1)	
+	print(f"CONTROLLER: Created fixed-filename chunk file for encoder to consume: for individual_chunk_id={individual_chunk_id} '{chunk_json_filename}' listing {ALL_CHUNKS[str(individual_chunk_id)]['num_files']} files, individual_chunk_dict=\n{UTIL.objPrettyPrint.pformat(individual_chunk_dict)}",flush=True)
+
+	# Define the commandlines for the subprocesses forming the ENCODER
+	if UTIL.DEBUG:
+		loglevel = r'verbose'
+		stats = r'-stats'
+		benchmark = r'-benchmark'
+	else:
+		loglevel = 'info'
+		stats = r'-stats'
+		benchmark = stats	# a hack to workaround ffmpeg rejecting zero length string''
+	short_gop_size = int( 1 * SETTINGS_DICT['TARGET_FPS'] )	# 1 second worth of GOP @ the designated frametate
+
+	vspipe_commandline = [ UTIL.VSPIPE_EXE, '--progress', '--container', 'y4m', slideshow_ENCODER_legacy_path, '-' ]
+
+	ffmpeg_commandline_libx264 = [
+							UTIL.FFMPEG_EXE,
+							'-hide_banner', 
+							'-loglevel', loglevel, 
+							stats, 
+							benchmark,
+							'-colorspace', 'bt709', 
+							'-color_primaries', 'bt709', 
+							'-color_trc', 'bt709', 
+							'-color_range', 'pc',
+							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_DECODER),
+							'-f', 'yuv4mpegpipe', 
+							'-i', 'pipe:',
+							#'-probesize', '200M', 
+							#'-analyzeduration', '200M',
+							'-sws_flags', 'lanczos+accurate_rnd+full_chroma_int+full_chroma_inp',
+							'-filter_complex', 'format=yuv420p,setdar=16/9', 
+							'-strict', 'experimental',
+							'-an',
+							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_ENCODER),
+							'-c:v', 'libx264',
+							'-preset', 'veryslow',
+							'-colorspace', 'bt709', 
+							'-color_primaries', 'bt709', 
+							'-color_trc', 'bt709', 
+							'-color_range', 'pc', 
+							'-forced-idr', '1', 		# If forcing keyframes, force them as IDR frames. (default false) 1=true
+							'-strict_gop', '1',			# Set 1 to minimize GOP-to-GOP rate fluctuations (default false) 1=True
+							'-flags', '+cgop',			# closed GOP
+							'-g', str(short_gop_size),
+							'-preset', 'veryslow',
+							'-refs', '3',  				# Set the number of reference frames to 3 SO THAT THE RESULTING MP4 IS TV COMPATIBLE !!! (it is 16 by default, which will not play on TVs)
+							#'-crf', '22', 				# use CRF so that we do not have to guess bitrates
+							'-b:v', SETTINGS_DICT['TARGET_VIDEO_BITRATE'], 			# 4.5M is ok (HQ) for h.264 1080p25 slideshow material; instead of crf 22
+							'-minrate:v', '500k',		# a fixed minimum for TV compatibility
+							'-maxrate:v', '20M', 		# a fixed ceiling for TV compatibility
+							'-bufsize', '20M',			# a fixed ceiling for TV compatibility
+							'-profile:v', 'high',
+							'-level', '5.1',			# we are only 1080p so 5.1 is enough # H.264 Maximum supported bitrate: Level 5.1: 50 Mbps, Level 5.2: 62.5 Mbps
+							'-movflags', '+faststart+write_colr',
+							'-y', proposed_h264_mkv_filename,
+							]
+	ffmpeg_commandline_h264_nvenc = [		# h264_nvenc ... has parameters ONLY for use with an nvidia 2060plus or higher video encoding card
+							UTIL.FFMPEG_EXE,
+							'-hide_banner', 
+							'-loglevel', loglevel, 
+							stats, 
+							benchmark,
+							'-colorspace', 'bt709', 
+							'-color_primaries', 'bt709', 
+							'-color_trc', 'bt709', 
+							'-color_range', 'pc',
+							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_DECODER),
+							'-f', 'yuv4mpegpipe', 
+							'-i', 'pipe:',
+							#'-probesize', '200M', 
+							#'-analyzeduration', '200M',
+							'-sws_flags', 'lanczos+accurate_rnd+full_chroma_int+full_chroma_inp',
+							'-filter_complex', 'format=yuv420p,setdar=16/9',
+							'-strict', 'experimental',
+							'-an',
+							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_ENCODER),
+							'-c:v', 'h264_nvenc', 
+							'-colorspace', 'bt709', 
+							'-color_primaries', 'bt709', 
+							'-color_trc', 'bt709', 
+							'-color_range', 'pc',
+							'-pix_fmt', 'nv12', 
+							'-preset', 'p7', 
+							'-multipass', 'fullres', 
+							'-forced-idr', '1', 		# If forcing keyframes, force them as IDR frames. (default false) 1=true
+							'-strict_gop', '1',			# Set 1 to minimize GOP-to-GOP rate fluctuations (default false) 1=True
+							'-flags', '+cgop',			# closed GOP
+							'-g', str(short_gop_size),
+							'-coder:v', 'cabac', 
+							'-spatial-aq', '1', 
+							'-temporal-aq', '1', 
+							'-dpb_size', '0', 
+							'-bf:v', '3', 
+							'-b_ref_mode:v', '0', 
+					# https://developer.nvidia.com/video-encode-and-decode-gpu-support-matrix-new
+					# https://www.reddit.com/r/ffmpeg/comments/xtl43y/hq_ffmpeg_encoding_with_gpu_nvenc_part_iii/
+					# NVIDIA Presets v2.0:									https://developer.download.nvidia.com/video/gputechconf/gtc/2020/presentations/s21337-nvidia-video-technologies-video-codec-and-optical-flow-sdk.pdf
+					#	P1 (highest performance) to P7 (highest quality)	https://developer.nvidia.com/blog/introducing-video-codec-sdk-10-presets/
+					# 	Rate Control Mode: Constant QP, CBR, VBR
+							'-rc:v', 'vbr', 		# this is what the nvidia documentation says and ffmpeg exposes for nvidia PRESETS v2.0 https://developer.download.nvidia.com/video/gputechconf/gtc/2020/presentations/s21337-nvidia-video-technologies-video-codec-and-optical-flow-sdk.pdf
+					#
+					# ONE OR THE OTHER NOT BOTH OF THESE
+							#'-cq:v', '24', 		# for use with CQ -b:v 0 ... uses CRF so that we do not have to guess bitrates # circa double filesize of '-b:v', '5M' !!	# Set target quality level (0 to 51, 0 means automatic) for constant quality mode in VBR rate control (from 0 to 51) (default 0)
+							#'-b:v', '0',			# nominated CQ target bitrate see -cq:v 20 ... apparently this is REQUIRED for -cq to work
+							'-cq:v', '0', 			# for use with non-CQ -b:v 4M ... # Set target quality level (0 to 51, 0 means automatic) for constant quality mode in VBR rate control (from 0 to 51) (default 0)
+							'-b:v', SETTINGS_DICT['TARGET_VIDEO_BITRATE'],			# 4.5M is ok (HQ) for h.264 1080p25 slideshow material ... nominated non-CQ target bitrate see -cq:v 0
+					#
+							'-tune', 'hq',
+							'-minrate:v', '500k',	# a fixed minimum for TV compatibility
+							'-maxrate:v', '20M', 	# a fixed ceiling for TV compatibility
+							'-bufsize', '20M',		# a fixed ceiling for TV compatibility
+							'-profile:v', 'high',
+							'-level', '5.1',		# we are only 1080p so 5.1 is enough# H.264 Maximum supported bitrate: Level 5.1: 50 Mbps, Level 5.2: 62.5 Mbps
+							'-movflags', '+faststart+write_colr',
+							'-y', proposed_h264_mkv_filename,
+							]
+
+	ffmpeg_commandline = ffmpeg_commandline_libx264		# the default if nothing is in SETTINGS_DICT or it is not recognised
+	try:
+		if SETTINGS_DICT["FFMPEG_ENCODER"] == "libx264":	ffmpeg_commandline = ffmpeg_commandline_libx264
+		if SETTINGS_DICT["FFMPEG_ENCODER"] == "h264_nvenc":	ffmpeg_commandline = ffmpeg_commandline_h264_nvenc
+	except:
+		pass	# ignore no key found exception for SETTINGS_DICT["FFMPEG_ENCODER"] 
+	# Execute the command using subprocess.run but using a full string not a LIST ... also fix "-filter_complex" value which MUST have quotes around it
+	def command_list_to_command_string(command_list):
+		command_parts = []
+		for part in command_list:
+			#if part.startswith('-') or part.lower() == r'pipe:'.lower():  # Check if the part starts with a dash (indicating a switch)
+			#	command_parts.append(part)  # Add the part as is (switch)
+			#else:
+			#	command_parts.append(f'"{part}"')  # Enclose the part in double quotes
+			if part.startswith('format='.lower()) or (len(part) >= 2 and part[1] == r':'):
+				command_parts.append(f'"{part}"')  # Enclose the part in double quotes
+			else:
+				command_parts.append(part)  # Add the part as is
+		commandline = ' '.join(command_parts)
+		return commandline
+	vspipe_commandline = command_list_to_command_string(vspipe_commandline)
+	ffmpeg_commandline = command_list_to_command_string(ffmpeg_commandline)
+	vspipe_pipe_ffmpeg_commandline = vspipe_commandline + r' | ' + ffmpeg_commandline
+	print(f"CONTROLLER: START Running the ENCODER to produce interim encoded file ... using one commandline:\n{UTIL.objPrettyPrint.pformat(vspipe_pipe_ffmpeg_commandline)}\n",flush=True)
+	result = subprocess.run(vspipe_pipe_ffmpeg_commandline, shell=True)
+	if result.returncode != 0:
+		print(f"CONTROLLER: ERROR Running the ENCODER to produce interim encoded file ... Command execution failed with exit status: {result.returncode}",flush=True)
+		sys.exit(1)
+
+	time.sleep(2.0)	# give it a chance (2 seconds, or 2000ms) to settle down
+	print(f"CONTROLLER: FINISHED Successfully Running the ENCODER with subprocess.run to produce interim encoded file ... using one commandline:\n{UTIL.objPrettyPrint.pformat(vspipe_pipe_ffmpeg_commandline)}",flush=True)
+	if not os.path.exists(chunk_json_filename):
+		print(f"CONTROLLER: ERROR: CONTROLLER: encoder-updated current chunk to JSON file file not found '{chunk_json_filename}' not found !",flush=True)
+		sys.exit(1)
+	if not os.path.exists(proposed_h264_mkv_filename):
+		print(f"CONTROLLER: ERROR: CONTROLLER: encoder-produced .mkv video file not found '{proposed_h264_mkv_filename}' not found !",flush=True)
+		sys.exit(1)
+
+	# Now the encoder has encoded a chunk and produced an updated chunk file and an h264 encoded video .mkv 
+	# ... we must import updated chunk file (which will include a new snippet_list) check the chunk, and update the ALL_CHUNKS dict with updated chunk data
+	# The format of the snippet_list produced by the encoder into the updated chunk JSON file is defined above.
+	if UTIL.DEBUG:	print(f"DEBUG: CONTROLLER: in encoder loop: attempting to load chunk_json_filename={chunk_json_filename} produced by the encoder.",flush=True)
+	try:
+		with open(chunk_json_filename, 'r') as fp:
+			updated_individual_chunk_dict = json.load(fp)
+	except Exception as e:
+		print(f"CONTROLLER: ERROR: CONTROLLER: loading updated current chunk from JSON file: '{chunk_json_filename}' from encoder, chunk_id={individual_chunk_id}, related to individual_chunk_dict=\nUTIL.objPrettyPrint.pformat(individual_chunk_dict)\n{str(e)}",flush=True,file=sys.stderr)
+		sys.exit(1)	
+	print(f"CONTROLLER: Loaded updated current chunk from ENCODER-updated JSON file: '{chunk_json_filename}'",flush=True)
+
+	if DEBUG:	print(f"CONTROLLER: DEBUG: the chunk_id returned from the encoder={updated_individual_chunk_dict['chunk_id']} whereas local encode was specified as individual_chunk_id={individual_chunk_id}",flush=True)
+
+	if (updated_individual_chunk_dict['chunk_id'] !=  individual_chunk_dict['chunk_id']) or (updated_individual_chunk_dict['chunk_id'] != individual_chunk_id):
+		print(f"CONTROLLER: ERROR: the chunk_id returned from the encoder={updated_individual_chunk_dict['chunk_id']} in updated_individual_chunk_dict does not match both expected individual_chunk_dict chunk_id={individual_chunk_dict['chunk_id']} or loop's individual_chunk_id={individual_chunk_id}",flush=True)
+		sys.exit(1)
+	# poke the chunk updated by the encoder back into global ALL_CHUNKS ... it should contain snippet data now.
+	ALL_CHUNKS[str(individual_chunk_id)] = updated_individual_chunk_dict
+
+	return
+
+###
+def final_concat_transcode_interim_ffv1():
+	if SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE'] != SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE_FFV1']:
+		print(f"CONTROLLER: ERROR: final_concat_transcode_interim_ffv1: INVALID CHUNK_INTERIM_ENCODE_TYPE '{SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE']}' specified; must be '{SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE_FFV1']}'",flush=True)
+		sys.exit(1)
+	
+	print(f"{100*'-'}",flush=True)
+	print(f'CONTROLLER: STARTING CONCATENATE/TRANSCODE INTERIM {SETTINGS_DICT["CHUNK_INTERIM_ENCODE_TYPE"]} VIDEO FILES INTO ONE VIDEO MP4 AND AT SAME TIME MUX WITH BACKGROUND AUDIO',flush=True)
+
+	# create the video-concat input file for ffmpeg, listing all of the FFV1 files to be concatenated/transcoded
+	temporary_ffmpeg_concat_list_filename = SETTINGS_DICT['TEMPORARY_FFMPEG_CONCAT_LIST_FILENAME']
+	with open(temporary_ffmpeg_concat_list_filename, 'w') as fp:
+		for individual_chunk_id in range(0,ALL_CHUNKS_COUNT):	# 0 to (ALL_CHUNKS_COUNT - 1)
+			ffv1_filename =  ALL_CHUNKS[str(individual_chunk_id)]['proposed_ffv1_mkv_filename']
+			fp.write(f"file '{ffv1_filename}'\n")
+			fp.flush()
+		#end for
+	#end with
+	
+	# We now have 
+	#	temporary_ffmpeg_concat_list_filename				the concat list of videos to be concatenated and transcoded
+	#	background_audio_with_overlayed_snippets_filename	the background audio with video snippets audio overlayed onto it the final format we need
+	# Lets transcode/mux them together.
+	if UTIL.DEBUG:
+		loglevel = r'verbose'
+		stats = r'-stats'
+		benchmark = r'-benchmark'
+	else:
+		loglevel = 'info'
+		stats = r'-stats'
+		benchmark = stats	# a hack to workaround ffmpeg rejecting zero length string ''
+	short_gop_size = int( 1 * SETTINGS_DICT['TARGET_FPS'] )	# 1 second worth of GOP @ the designated frametate
+
+	final_mp4_with_audio_filename = SETTINGS_DICT['FINAL_MP4_WITH_AUDIO_FILENAME']
+
+	ffmpeg_commandline_libx264 = [
+							UTIL.FFMPEG_EXE,
+							'-hide_banner', 
+							'-loglevel', loglevel, 
+							stats, 
+							benchmark,
+							#'-colorspace', 'bt709', 
+							#'-color_primaries', 'bt709', 
+							#'-color_trc', 'bt709', 
+							#'-color_range', 'pc',
+							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_DECODER),
+							'-i', background_audio_with_overlayed_snippets_filename,
+							'-f', 'concat', '-safe', '0', '-i', temporary_ffmpeg_concat_list_filename,
+							'-sws_flags', 'lanczos+accurate_rnd+full_chroma_int+full_chroma_inp',
+							'-filter_complex', 'format=yuv420p,setdar=16/9',
+							'-strict', 'experimental',
+							'-c:a', 'copy',
+							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_ENCODER),
+							'-c:v', 'libx264',
+							'-preset', 'veryslow',
+							'-colorspace', 'bt709', 
+							'-color_primaries', 'bt709', 
+							'-color_trc', 'bt709', 
+							'-color_range', 'pc', 
+							'-forced-idr', '1', 		# If forcing keyframes, force them as IDR frames. (default false) 1=true
+							'-strict_gop', '1',			# Set 1 to minimize GOP-to-GOP rate fluctuations (default false) 1=True
+							'-flags', '+cgop',			# closed GOP
+							'-g', str(short_gop_size),
+							'-preset', 'veryslow',
+							'-refs', '3',  				# Set the number of reference frames to 3 SO THAT THE RESULTING MP4 IS TV COMPATIBLE !!! (it is 16 by default, which will not play on TVs)
+							#'-crf', '22', 				# use CRF so that we do not have to guess bitrates
+							'-b:v', SETTINGS_DICT['TARGET_VIDEO_BITRATE'], 			# 4.5M is ok (HQ) for h.264 1080p25 slideshow material; instead of crf 22
+							'-minrate:v', '500k',		# a fixed minimum for TV compatibility
+							'-maxrate:v', '20M', 		# a fixed ceiling for TV compatibility
+							'-bufsize', '20M',			# a fixed ceiling for TV compatibility
+							'-profile:v', 'high',
+							'-level', '5.1',			# we are only 1080p so 5.1 is enough # H.264 Maximum supported bitrate: Level 5.1: 50 Mbps, Level 5.2: 62.5 Mbps
+							'-movflags', '+faststart+write_colr',
+							'-y', final_mp4_with_audio_filename,
+							]
+	ffmpeg_commandline_h264_nvenc = [		# h264_nvenc ... has parameters ONLY for use with an nvidia 2060plus or higher video encoding card
+							UTIL.FFMPEG_EXE,
+							'-hide_banner', 
+							'-loglevel', loglevel, 
+							stats, 
+							benchmark,
+							#'-colorspace', 'bt709', 
+							#'-color_primaries', 'bt709', 
+							#'-color_trc', 'bt709', 
+							#'-color_range', 'pc',
+							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_DECODER),
+							'-i', background_audio_with_overlayed_snippets_filename,
+							'-f', 'concat', '-safe', '0', '-i', temporary_ffmpeg_concat_list_filename,
+							'-sws_flags', 'lanczos+accurate_rnd+full_chroma_int+full_chroma_inp',
+							'-filter_complex', 'format=yuv420p,setdar=16/9',
+							'-strict', 'experimental',
+							'-c:a', 'copy',
+							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_ENCODER),
+							'-c:v', 'h264_nvenc', 
+							'-colorspace', 'bt709', 
+							'-color_primaries', 'bt709', 
+							'-color_trc', 'bt709', 
+							'-color_range', 'pc',
+							'-pix_fmt', 'nv12', 
+							'-preset', 'p7', 
+							'-multipass', 'fullres', 
+							'-forced-idr', '1', 		# If forcing keyframes, force them as IDR frames. (default false) 1=true
+							'-strict_gop', '1',			# Set 1 to minimize GOP-to-GOP rate fluctuations (default false) 1=True
+							'-flags', '+cgop',			# closed GOP
+							'-g', str(short_gop_size),
+							'-coder:v', 'cabac', 
+							'-spatial-aq', '1', 
+							'-temporal-aq', '1', 
+							'-dpb_size', '0', 
+							'-bf:v', '3', 
+							'-b_ref_mode:v', '0', 
+					# https://developer.nvidia.com/video-encode-and-decode-gpu-support-matrix-new
+					# https://www.reddit.com/r/ffmpeg/comments/xtl43y/hq_ffmpeg_encoding_with_gpu_nvenc_part_iii/
+					# NVIDIA Presets v2.0:									https://developer.download.nvidia.com/video/gputechconf/gtc/2020/presentations/s21337-nvidia-video-technologies-video-codec-and-optical-flow-sdk.pdf
+					#	P1 (highest performance) to P7 (highest quality)	https://developer.nvidia.com/blog/introducing-video-codec-sdk-10-presets/
+					# 	Rate Control Mode: Constant QP, CBR, VBR
+							'-rc:v', 'vbr', 		# this is what the nvidia documentation says and ffmpeg exposes for nvidia PRESETS v2.0 https://developer.download.nvidia.com/video/gputechconf/gtc/2020/presentations/s21337-nvidia-video-technologies-video-codec-and-optical-flow-sdk.pdf
+					#
+					# ONE OR THE OTHER NOT BOTH OF THESE
+							#'-cq:v', '24', 		# for use with CQ -b:v 0 ... uses CRF so that we do not have to guess bitrates # circa double filesize of '-b:v', '5M' !!	# Set target quality level (0 to 51, 0 means automatic) for constant quality mode in VBR rate control (from 0 to 51) (default 0)
+							#'-b:v', '0',			# nominated CQ target bitrate see -cq:v 20 ... apparently this is REQUIRED for -cq to work
+							'-cq:v', '0', 			# for use with non-CQ -b:v 4M ... # Set target quality level (0 to 51, 0 means automatic) for constant quality mode in VBR rate control (from 0 to 51) (default 0)
+							'-b:v', SETTINGS_DICT['TARGET_VIDEO_BITRATE'],			# 4.5M is ok (HQ) for h.264 1080p25 slideshow material ... nominated non-CQ target bitrate see -cq:v 0
+					#
+							'-tune', 'hq',
+							'-minrate:v', '500k',	# a fixed minimum for TV compatibility
+							'-maxrate:v', '20M', 	# a fixed ceiling for TV compatibility
+							'-bufsize', '20M',		# a fixed ceiling for TV compatibility
+							'-profile:v', 'high',
+							'-level', '5.1',		# we are only 1080p so 5.1 is enough# H.264 Maximum supported bitrate: Level 5.1: 50 Mbps, Level 5.2: 62.5 Mbps
+							'-movflags', '+faststart+write_colr',
+							'-y', final_mp4_with_audio_filename,
+							]
+
+	ffmpeg_commandline = ffmpeg_commandline_libx264		# the default if nothing is in SETTINGS_DICT or it is not recognised
+	try:
+		if SETTINGS_DICT["FFMPEG_ENCODER"] == "libx264":	ffmpeg_commandline = ffmpeg_commandline_libx264
+		if SETTINGS_DICT["FFMPEG_ENCODER"] == "h264_nvenc":	ffmpeg_commandline = ffmpeg_commandline_h264_nvenc
+	except:
+		pass	# ignore no key found exception for SETTINGS_DICT["FFMPEG_ENCODER"] 
+	print(f"CONTROLLER: START FFMPEG CONATENATE/TRANSCODE INTERIM '{SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE']}' VIDEOS AND MUX AUDIO IN ONE GO. FFMPEG command:\n{UTIL.objPrettyPrint.pformat(ffmpeg_commandline)}",flush=True)
+	subprocess.run(ffmpeg_commandline, check=True)	# this will crash if there's an error
+	print(f'CONTROLLER: FINISHED CONCATENATE/TRANSCODE INTERIM {SETTINGS_DICT["CHUNK_INTERIM_ENCODE_TYPE"]} VIDEO FILES INTO ONE VIDEO MP4 AND AT SAME TIME MUX WITH BACKGROUND AUDIO\nFinal Slideshow={UTIL.objPrettyPrint.pformat(final_mp4_with_audio_filename)}',flush=True)
+	print(f"{100*'-'}",flush=True)
+
+###
+def final_concat_transcode_interim_h264():
+	if SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE'] != SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE_H264']:
+		print(f"CONTROLLER: ERROR: final_concat_transcode_interim_h264: INVALID CHUNK_INTERIM_ENCODE_TYPE '{SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE']}' specified; must be '{SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE_H264']}'",flush=True)
+		sys.exit(1)
+
+	print(f"{100*'-'}",flush=True)
+	print(f'CONTROLLER: STARTING CONCATENATE INTERIM {SETTINGS_DICT["CHUNK_INTERIM_ENCODE_TYPE"]} VIDEO FILES INTO ONE VIDEO MP4 AND AT SAME TIME MUX WITH BACKGROUND AUDIO',flush=True)
+
+	# create the video-concat input file for ffmpeg, listing all of the H264 files to be concatenated/transcoded
+	temporary_ffmpeg_concat_list_filename = SETTINGS_DICT['TEMPORARY_FFMPEG_CONCAT_LIST_FILENAME']
+	with open(temporary_ffmpeg_concat_list_filename, 'w') as fp:
+		for individual_chunk_id in range(0,ALL_CHUNKS_COUNT):	# 0 to (ALL_CHUNKS_COUNT - 1)
+			h264_filename =  ALL_CHUNKS[str(individual_chunk_id)]['proposed_h264_mkv_filename']
+			fp.write(f"file '{h264_filename}'\n")
+			fp.flush()
+		#end for
+	#end with
+	
+	# We now have 
+	#	temporary_ffmpeg_concat_list_filename				the concat list of videos to be concatenated and transcoded
+	#	background_audio_with_overlayed_snippets_filename	the background audio with video snippets audio overlayed onto it the final format we need
+	# Lets concat mux them together.
+	if UTIL.DEBUG:
+		loglevel = r'verbose'
+		stats = r'-stats'
+		benchmark = r'-benchmark'
+	else:
+		loglevel = 'info'
+		stats = r'-stats'
+		benchmark = stats	# a hack to workaround ffmpeg rejecting zero length string ''
+
+	final_mp4_with_audio_filename = SETTINGS_DICT['FINAL_MP4_WITH_AUDIO_FILENAME']
+
+	ffmpeg_commandline = 	[
+							UTIL.FFMPEG_EXE,
+							'-hide_banner', 
+							'-loglevel', loglevel, 
+							stats, 
+							benchmark,
+							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_DECODER),
+							'-i', background_audio_with_overlayed_snippets_filename,
+							'-colorspace', 'bt709', 
+							'-color_primaries', 'bt709', 
+							'-color_trc', 'bt709', 
+							'-color_range', 'pc',
+							'-f', 'concat', '-safe', '0', '-i', temporary_ffmpeg_concat_list_filename,
+							'-sws_flags', 'lanczos+accurate_rnd+full_chroma_int+full_chroma_inp',
+							#'-filter_complex', 'format=yuv420p,setdar=16/9',
+							'-strict', 'experimental',
+							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_ENCODER),
+							'-c:v', 'copy',
+							'-c:a', 'copy',
+							#'-colorspace', 'bt709', 
+							#'-color_primaries', 'bt709', 
+							#'-color_trc', 'bt709', 
+							#'-color_range', 'pc', 
+							#'-profile:v', 'high',
+							'-level', '5.1',			# we are only 1080p so 5.1 is enough # H.264 Maximum supported bitrate: Level 5.1: 50 Mbps, Level 5.2: 62.5 Mbps
+							'-movflags', '+faststart+write_colr',
+							'-y', final_mp4_with_audio_filename,
+							]
+
+	print(f"CONTROLLER: START FFMPEG CONATENATE INTERIM {SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE']} VIDEOS AND MUX AUDIO IN ONE GO. FFMPEG command:\n{UTIL.objPrettyPrint.pformat(ffmpeg_commandline)}",flush=True)
+	subprocess.run(ffmpeg_commandline, check=True)	# this will crash if there's an error
+	print(f'CONTROLLER: FINISHED CONCATENATE INTERIM {SETTINGS_DICT["CHUNK_INTERIM_ENCODE_TYPE"]} VIDEO FILES INTO ONE VIDEO MP4 AND AT SAME TIME MUX WITH BACKGROUND AUDIO\nFinal Slideshow={UTIL.objPrettyPrint.pformat(final_mp4_with_audio_filename)}',flush=True)
+	print(f"{100*'-'}",flush=True)
+
 ##################################################
 
 if __name__ == "__main__":
@@ -766,14 +1199,19 @@ if __name__ == "__main__":
 
 	##########################################################################################################################################
 	##########################################################################################################################################
-	# INTERIM ENCODING OF CHUNKS INTO INTERIM FFV1 VIDEO FILES, 
+	# INTERIM ENCODING OF CHUNKS INTO INTERIM FFV1 OR H264 VIDEO FILES, 
 	# SAVING FRAME NUMBERS AND NUM VIDEO FRAMES INFO SNIPPET DICT, 
 	# CREATING SNIPPET JSON, IMPORTING JSON AND ADDING TO ALL_SNIPPETS DICT:
 	print(f"{100*'-'}",flush=True)
 	print(f'CONTROLLER: STARTING INTERIM ENCODING OF CHUNKS INTO INTERIM FFV1 VIDEO FILES',flush=True)
 	if UTIL.DEBUG:	
 		print(f"DEBUG: CONTROLLER: Starting encoder loop for each of ALL_CHUNKS tree. chunks: {ALL_CHUNKS_COUNT} files: {ALL_CHUNKS_COUNT_OF_FILES}",flush=True)
-	
+
+??	CHUNK_INTERIM_ENCODE_TYPE_H264					= r'h.264'.lower()
+??	CHUNK_INTERIM_ENCODE_TYPE_FFV1					= r'ffv1'.lower()
+??	valid_CHUNK_INTERIM_ENCODE_TYPE					= [CHUNK_INTERIM_ENCODE_TYPE_H264 , CHUNK_INTERIM_ENCODE_TYPE_FFV1]
+??	CHUNK_INTERIM_ENCODE_TYPE						= valid_CHUNK_INTERIM_ENCODE_TYPE[0]	# default to CHUNK_INTERIM_ENCODE_TYPE_H264
+
 	for individual_chunk_id in range(0,ALL_CHUNKS_COUNT):	# 0 to (ALL_CHUNKS_COUNT - 1)
 		# we cannot just import the legacy encoder and call it with parameters, it is a vpy consumed by ffmpeg and that does not accept parameters
 		# so we need to create`a fixed-filenamed input file for it to consume (a chu`nk)
@@ -786,8 +1224,10 @@ if __name__ == "__main__":
 
 		chunk_json_filename = UTIL.fully_qualified_filename(individual_chunk_dict['chunk_fixed_json_filename'])					# always the same fixed filename
 		proposed_ffv1_mkv_filename = UTIL.fully_qualified_filename(individual_chunk_dict['proposed_ffv1_mkv_filename'])	# preset by find_all_chunks to: fixed filename plus a seqential 5-digit-zero-padded ending based on chunk_id + r'.mkv'
+		proposed_h264_mkv_filename = UTIL.fully_qualified_filename(individual_chunk_dict['proposed_h264_mkv_filename'])	# preset by find_all_chunks to: fixed filename plus a seqential 5-digit-zero-padded ending based on chunk_id + r'.mkv'
 		
-		if UTIL.DEBUG:	print(f"DEBUG: CONTROLLER: encoder loop: CALLING THE ENCODER, individual_chunk_id={individual_chunk_id }VSPIPE piped to FFMPEG ... with controller using non-blocking reads of stdout and stderr (per chatgpt).",flush=True)
+		#if UTIL.DEBUG:	print(f"DEBUG: CONTROLLER: encoder loop: CALLING THE ENCODER, individual_chunk_id={individual_chunk_id} VSPIPE piped to FFMPEG ... with controller using non-blocking reads of stdout and stderr (per chatgpt).",flush=True)
+		if UTIL.DEBUG:	print(f"DEBUG: CONTROLLER: encoder loop: CALLING THE ENCODER, individual_chunk_id={individual_chunk_id} VSPIPE piped to FFMPEG ... ",flush=True)
 		# These fields in a chunk dict need to be updated by the encoder:
 		#	'num_frames_in_chunk'
  		#	'start_frame_num_in_chunk'
@@ -802,15 +1242,21 @@ if __name__ == "__main__":
 		#			'snippet_source_video_filename': '\a\b\c\ZZZ1.3GP'	# filled in by encoder
 
 		#+++
-		encode_chunk_using_vsipe_ffmpeg(individual_chunk_id)
+		if SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE'] == SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE_FFV1']:
+			encode_chunk_using_vsipe_ffmpeg_to_ffv1(individual_chunk_id)	# this is the tried and proven method which requires tonnes of interim disk space
+		elif SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE'] == SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE_H264']:
+			encode_chunk_using_vsipe_ffmpeg_to_h264(individual_chunk_id)	# this is an experimental method encoding to h.264 directly, but yields DTS issues if using .mp4 interim files during ffmpeg concat of .mp4 files at the end
+		else:
+			print(f"CONTROLLER: ERROR: encoder loop: INVALID CHUNK_INTERIM_ENCODE_TYPE '{SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE']}' specified; must be one of {SETTINGS_DICT['valid_CHUNK_INTERIM_ENCODE_TYPE']}... individual_chunk_id={individual_chunk_id} VSPIPE piped to FFMPEG ... ",flush=True)
+			sys.exit(1)
 		#+++
 	
 		if UTIL.DEBUG:	print(f"DEBUG: encoder loop: RETURNED FROM THE ENCODER, individual_chunk_id={individual_chunk_id} VSPIPE piped to FFMPEG ... with controller using non-blocking reads of stdout and stderr (per chatgpt).",flush=True)
 	#end for
 
+	print(f'CONTROLLER: Finished INTERIM ENCODING OF CHUNKS INTO INTERIM {SETTINGS_DICT["CHUNK_INTERIM_ENCODE_TYPE"]} VIDEO FILES',flush=True)
 	if UTIL.DEBUG:
-		print(f'CONTROLLER: Finished INTERIM ENCODING OF CHUNKS INTO INTERIM FFV1 VIDEO FILES',flush=True)
-		print(f"CONTROLLER: After updating encoder added snippets into each chunk and controller UPDATING chunk info into ALL_CHUNKS, the new ALL_CHUNKS tree is:\n{UTIL.objPrettyPrint.pformat(ALL_CHUNKS)}",flush=True)
+		print(f"CONTROLLER: After updating encoder ({SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE']}), added snippets into each chunk and controller UPDATING chunk info into ALL_CHUNKS, the new ALL_CHUNKS tree is:\n{UTIL.objPrettyPrint.pformat(ALL_CHUNKS)}",flush=True)
 
 	##########################################################################################################################################
 	##########################################################################################################################################
@@ -1095,145 +1541,15 @@ if __name__ == "__main__":
 
 	##########################################################################################################################################
 	##########################################################################################################################################
-	# CONCATENATE/TRANSCODE INTERIM FFV1 VIDEO FILES INTO ONE VIDEO MP4 AND AT SAME TIME MUX WITH BACKGROUND AUDIO.mp4
-	print(f"{100*'-'}",flush=True)
-	print(f'CONTROLLER: STARTING CONCATENATE/TRANSCODE INTERIM FFV1 VIDEO FILES INTO ONE VIDEO MP4 AND AT SAME TIME MUX WITH BACKGROUND AUDIO',flush=True)
+	# CONCATENATE/TRANSCODE INTERIM FFV1 or H264 VIDEO FILES INTO ONE VIDEO MP4 AND AT SAME TIME MUX WITH BACKGROUND AUDIO.mp4
 
-	# create the video-concat input file for ffmpeg, listing all of the FFV1 files to be concatenated/transcoded
-	temporary_ffmpeg_concat_list_filename = SETTINGS_DICT['TEMPORARY_FFMPEG_CONCAT_LIST_FILENAME']
-	with open(temporary_ffmpeg_concat_list_filename, 'w') as fp:
-		for individual_chunk_id in range(0,ALL_CHUNKS_COUNT):	# 0 to (ALL_CHUNKS_COUNT - 1)
-			ffv1_filename =  ALL_CHUNKS[str(individual_chunk_id)]['proposed_ffv1_mkv_filename']
-			fp.write(f"file '{ffv1_filename}'\n")
-			fp.flush()
-		#end for
-	#end with
-	
-	# We now have 
-	#	temporary_ffmpeg_concat_list_filename				the concat list of videos to be concatenated and transcoded
-	#	background_audio_with_overlayed_snippets_filename	the background audio with video snippets audio overlayed onto it the final format we need
-	# Lets transcode/mux them together.
-	if UTIL.DEBUG:
-		loglevel = r'verbose'
-		stats = r'-stats'
-		benchmark = r'-benchmark'
+	if SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE'] == SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE_FFV1']:
+		final_concat_transcode_interim_ffv1() 	# this is the tried and proven method which requires tonnes of interim disk space
+	elif SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE'] == SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE_H264']:
+		final_concat_transcode_interim_h264()	# this is an experimental method encoding to h.264 directly, but yields DTS issues if using .mp4 interim files during ffmpeg concat of .mp4 files at the end
 	else:
-		loglevel = 'info'
-		stats = r'-stats'
-		benchmark = stats	# a hack to workaround ffmpeg rejecting zero length string ''
-		
-	short_gop_size = int( 1 * SETTINGS_DICT['TARGET_FPS'] )	# 1 second worth of GOP @ the designated frametate
-
-	final_mp4_with_audio_filename = SETTINGS_DICT['FINAL_MP4_WITH_AUDIO_FILENAME']
-	ffmpeg_commandline_libx264 = [
-							UTIL.FFMPEG_EXE,
-							'-hide_banner', 
-							'-loglevel', loglevel, 
-							stats, 
-							benchmark,
-							#'-colorspace', 'bt709', 
-							#'-color_primaries', 'bt709', 
-							#'-color_trc', 'bt709', 
-							#'-color_range', 'pc',
-							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_DECODER),
-							'-i', background_audio_with_overlayed_snippets_filename,
-							'-f', 'concat', '-safe', '0', '-i', temporary_ffmpeg_concat_list_filename,
-							'-sws_flags', 'lanczos+accurate_rnd+full_chroma_int+full_chroma_inp',
-							'-filter_complex', 'format=yuv420p,setdar=16/9',
-							'-strict', 'experimental',
-							'-c:a', 'copy',
-							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_ENCODER),
-							'-c:v', 'libx264',
-							'-preset', 'veryslow',
-							'-colorspace', 'bt709', 
-							'-color_primaries', 'bt709', 
-							'-color_trc', 'bt709', 
-							'-color_range', 'pc', 
-							'-forced-idr', '1', 		# If forcing keyframes, force them as IDR frames. (default false) 1=true
-							'-strict_gop', '1',			# Set 1 to minimize GOP-to-GOP rate fluctuations (default false) 1=True
-							'-flags', '+cgop',			# closed GOP
-							'-g', str(short_gop_size),
-							'-preset', 'veryslow',
-							'-refs', '3',  				# Set the number of reference frames to 3 SO THAT THE RESULTING MP4 IS TV COMPATIBLE !!! (it is 16 by default, which will not play on TVs)
-							#'-crf', '22', 				# use CRF so that we do not have to guess bitrates
-							'-b:v', SETTINGS_DICT['TARGET_VIDEO_BITRATE'], 			# 4.5M is ok (HQ) for h.264 1080p25 slideshow material; instead of crf 22
-							'-minrate:v', '500k',		# a fixed minimum for TV compatibility
-							'-maxrate:v', '20M', 		# a fixed ceiling for TV compatibility
-							'-bufsize', '20M',			# a fixed ceiling for TV compatibility
-							'-profile:v', 'high',
-							'-level', '5.1',			# we are only 1080p so 5.1 is enough # H.264 Maximum supported bitrate: Level 5.1: 50 Mbps, Level 5.2: 62.5 Mbps
-							'-movflags', '+faststart+write_colr',
-							'-y', final_mp4_with_audio_filename,
-							]
-	ffmpeg_commandline_h264_nvenc = [		# h264_nvenc ... has parameters ONLY for use with an nvidia 2060plus or higher video encoding card
-							UTIL.FFMPEG_EXE,
-							'-hide_banner', 
-							'-loglevel', loglevel, 
-							stats, 
-							benchmark,
-							#'-colorspace', 'bt709', 
-							#'-color_primaries', 'bt709', 
-							#'-color_trc', 'bt709', 
-							#'-color_range', 'pc',
-							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_DECODER),
-							'-i', background_audio_with_overlayed_snippets_filename,
-							'-f', 'concat', '-safe', '0', '-i', temporary_ffmpeg_concat_list_filename,
-							'-sws_flags', 'lanczos+accurate_rnd+full_chroma_int+full_chroma_inp',
-							'-filter_complex', 'format=yuv420p,setdar=16/9',
-							'-strict', 'experimental',
-							'-c:a', 'copy',
-							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_ENCODER),
-							'-c:v', 'h264_nvenc', 
-							'-colorspace', 'bt709', 
-							'-color_primaries', 'bt709', 
-							'-color_trc', 'bt709', 
-							'-color_range', 'pc',
-							'-pix_fmt', 'nv12', 
-							'-preset', 'p7', 
-							'-multipass', 'fullres', 
-							'-forced-idr', '1', 		# If forcing keyframes, force them as IDR frames. (default false) 1=true
-							'-strict_gop', '1',			# Set 1 to minimize GOP-to-GOP rate fluctuations (default false) 1=True
-							'-flags', '+cgop',			# closed GOP
-							'-g', str(short_gop_size),
-							'-coder:v', 'cabac', 
-							'-spatial-aq', '1', 
-							'-temporal-aq', '1', 
-							'-dpb_size', '0', 
-							'-bf:v', '3', 
-							'-b_ref_mode:v', '0', 
-					# https://developer.nvidia.com/video-encode-and-decode-gpu-support-matrix-new
-					# https://www.reddit.com/r/ffmpeg/comments/xtl43y/hq_ffmpeg_encoding_with_gpu_nvenc_part_iii/
-					# NVIDIA Presets v2.0:									https://developer.download.nvidia.com/video/gputechconf/gtc/2020/presentations/s21337-nvidia-video-technologies-video-codec-and-optical-flow-sdk.pdf
-					#	P1 (highest performance) to P7 (highest quality)	https://developer.nvidia.com/blog/introducing-video-codec-sdk-10-presets/
-					# 	Rate Control Mode: Constant QP, CBR, VBR
-							'-rc:v', 'vbr', 		# this is what the nvidia documentation says and ffmpeg exposes for nvidia PRESETS v2.0 https://developer.download.nvidia.com/video/gputechconf/gtc/2020/presentations/s21337-nvidia-video-technologies-video-codec-and-optical-flow-sdk.pdf
-					#
-					# ONE OR THE OTHER NOT BOTH OF THESE
-							#'-cq:v', '24', 		# for use with CQ -b:v 0 ... uses CRF so that we do not have to guess bitrates # circa double filesize of '-b:v', '5M' !!	# Set target quality level (0 to 51, 0 means automatic) for constant quality mode in VBR rate control (from 0 to 51) (default 0)
-							#'-b:v', '0',			# nominated CQ target bitrate see -cq:v 20 ... apparently this is REQUIRED for -cq to work
-							'-cq:v', '0', 			# for use with non-CQ -b:v 4M ... # Set target quality level (0 to 51, 0 means automatic) for constant quality mode in VBR rate control (from 0 to 51) (default 0)
-							'-b:v', SETTINGS_DICT['TARGET_VIDEO_BITRATE'],			# 4.5M is ok (HQ) for h.264 1080p25 slideshow material ... nominated non-CQ target bitrate see -cq:v 0
-					#
-							'-tune', 'hq',
-							'-minrate:v', '500k',	# a fixed minimum for TV compatibility
-							'-maxrate:v', '20M', 	# a fixed ceiling for TV compatibility
-							'-bufsize', '20M',		# a fixed ceiling for TV compatibility
-							'-profile:v', 'high',
-							'-level', '5.1',		# we are only 1080p so 5.1 is enough# H.264 Maximum supported bitrate: Level 5.1: 50 Mbps, Level 5.2: 62.5 Mbps
-							'-movflags', '+faststart+write_colr',
-							'-y', final_mp4_with_audio_filename,
-							]
-
-	ffmpeg_commandline = ffmpeg_commandline_libx264		# the default if nothing is in SETTINGS_DICT or it is not recognised
-	try:
-		if SETTINGS_DICT["FFMPEG_ENCODER"] == "libx264":	ffmpeg_commandline = ffmpeg_commandline_libx264
-		if SETTINGS_DICT["FFMPEG_ENCODER"] == "h264_nvenc":	ffmpeg_commandline = ffmpeg_commandline_h264_nvenc
-	except:
-		pass	# ignore no key found exception for SETTINGS_DICT["FFMPEG_ENCODER"] 
-	print(f"CONTROLLER: START FFMPEG CONATENATE/TRANSCODE INTERIM VIDEOS AND MUX AUDIO IN ONE GO. FFMPEG command:\n{UTIL.objPrettyPrint.pformat(ffmpeg_commandline)}",flush=True)
-	subprocess.run(ffmpeg_commandline, check=True)
-	print(f'CONTROLLER: FINISHED CONCATENATE/TRANSCODE INTERIM FFV1 VIDEO FILES INTO ONE VIDEO MP4 AND AT SAME TIME MUX WITH BACKGROUND AUDIO\nFinal Slideshow={UTIL.objPrettyPrint.pformat(final_mp4_with_audio_filename)}',flush=True)
-	print(f"{100*'-'}",flush=True)
+		print(f"CONTROLLER: ERROR: INVALID CHUNK_INTERIM_ENCODE_TYPE '{SETTINGS_DICT['CHUNK_INTERIM_ENCODE_TYPE']}' specified; must be one of {SETTINGS_DICT['valid_CHUNK_INTERIM_ENCODE_TYPE']}... COULD NOT CALL FUNCTION TO CONCATENATE/TRANSCODE INTERIM FFV1 or H264 VIDEO FILES ... ",flush=True)
+		sys.exit(1)
 	
 	##########################################################################################################################################
 	##########################################################################################################################################
@@ -1251,7 +1567,10 @@ if __name__ == "__main__":
 	if os.path.exists(f): os.remove(f)	
 	for individual_chunk_id in range(0,ALL_CHUNKS_COUNT):	# 0 to (ALL_CHUNKS_COUNT - 1)
 		f = UTIL.fully_qualified_filename(SETTINGS_DICT['CHUNK_ENCODED_FFV1_FILENAME_BASE'] + str(individual_chunk_id).zfill(5) + r'.mkv')
-		if DEBUG:	print(f'DEBUG: CONTROLLER: attempting to delete chunk file "{f}"',flush=True)
+		if DEBUG:	print(f'DEBUG: CONTROLLER: attempting to delete FFV1 chunk file "{f}"',flush=True)
+		if os.path.exists(f): os.remove(str(f))	
+		f = UTIL.fully_qualified_filename(SETTINGS_DICT['CHUNK_ENCODED_H264_FILENAME_BASE'] + str(individual_chunk_id).zfill(5) + r'.mkv')
+		if DEBUG:	print(f'DEBUG: CONTROLLER: attempting to delete H.264 chunk file "{f}"',flush=True)
 		if os.path.exists(f): os.remove(str(f))	
 	print(f"CONTROLLER: FINISHED CLEANUP OF FILES IN '{SETTINGS_DICT['TEMP_FOLDER']}'",flush=True)
 

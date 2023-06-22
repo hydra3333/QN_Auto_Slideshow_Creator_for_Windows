@@ -1145,16 +1145,16 @@ def resize_clip(clip,w,h):
 		#	https://www.vapoursynth.com/doc/pythonreference.html#video
 		#
 		# INCOMING: RGB: we have to set defaults since FFMS2 dos not appear to deliver properties for .gif other than RGB family
-		range_in = vs.ColorRange.RANGE_LIMITED						# 1, vs.ColorRange.RANGE_LIMITED			# vs: 0=full range, 1=limited range
+		range_in = (1 - objSettings.TARGET_COLOR_RANGE_I_ZIMG)		# 1, vs.ColorRange.RANGE_LIMITED # see notes on zimg and vs. ranges	# vs: 0=full range, 1=limited range (if 1 then converts to 0 if 0 then converts to 1)
 		range_in_s = {0:'full',1:'limited'}[range_in]				# 1, limited convert to text ???????????
 		matrix_in = vs.MatrixCoefficients.MATRIX_RGB				# 0, RGB 
 		transfer_in = vs.TransferCharacteristics.TRANSFER_BT470_BG	# 5, 470bg
-		primaries_in = vs.ColorPrimaries.PRIMARIES_BT470_BG		# 5, 470bg 
+		primaries_in = vs.ColorPrimaries.PRIMARIES_BT470_BG			# 5, 470bg 
 		colors_in = dict(range_in_s=range_in_s, matrix_in=matrix_in, transfer_in=transfer_in, primaries_in=primaries_in)
 		
 		# OUTGOING: YUV444 WORKING_PIXEL_FORMAT
-		range_out = vs.ColorRange.RANGE_FULL					# 1, vs.ColorRange.RANGE_FULL
-		range_out_s = {0:'full',1:'limited'}[range_out]			# 0, full convert to text ???????????
+		range_out = objSettings.TARGET_COLOR_RANGE_I_ZIMG			# 1, vs.ColorRange.RANGE_FULL
+		range_out_s = {0:'full',1:'limited'}[range_out]				# 0, full convert to text ???????????
 		range_out_zimg = objSettings.TARGET_COLOR_RANGE_I_ZIMG
 		matrix_out = objSettings.TARGET_COLORSPACE_MATRIX_I
 		transfer_out = objSettings.TARGET_COLOR_TRANSFER_I
@@ -3180,6 +3180,7 @@ print_NORMAL(f'ENCODER (legacy): Loaded incoming current chunk JSON file: "{CURR
 #		'chunk_id': chunk_id,
 #		'chunk_fixed_json_filename' :				UTIL.fully_qualified_filename(SETTINGS_DICT['CURRENT_CHUNK_FILENAME']),		# always the same fixed filename
 #		'proposed_ffv1_mkv_filename' :				UTIL.fully_qualified_filename(SETTINGS_DICT['CHUNK_ENCODED_FFV1_FILENAME_BASE'] + str(chunk_id).zfill(5) + r'.mkv'),	# filename related to chunk_id
+#		'proposed_h264_mkv_filename' :				UTIL.fully_qualified_filename(SETTINGS_DICT['CHUNK_ENCODED_H264_FILENAME_BASE'] + str(chunk_id).zfill(5) + r'.mkv'),	# filename related to chunk_id
 #		'num_frames_in_chunk' :						0,	# initialize to 0, filled in by encoder
 #		'start_frame_num_in_chunk':					0,	# initialize to 0, filled in by encoder
 #		'end_frame_num_in_chunk':					0,	# initialize to 0, filled in by encoder

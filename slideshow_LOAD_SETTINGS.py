@@ -158,6 +158,12 @@ def load_settings():
 	CHUNKS_FILENAME_FOR_ALL_CHUNKS_DICT			= r'chunks_file_for_all_chunks_dict.json'		# add TEMP_FOLDER later.
 	SNIPPETS_FILENAME_FOR_ALL_SNIPPETS_DICT		= r'snippets_file_for_all_snippets_dict.json'	# add TEMP_FOLDER later.
 	CHUNK_ENCODED_FFV1_FILENAME_BASE			= r'encoded_chunk_ffv1_'						# add TEMP_FOLDER later. interim encoded video from encoding process, associated with a snippet dict, full names dynamically created eg "interim_ffv1_0001.mkv"
+	CHUNK_ENCODED_H264_FILENAME_BASE			= r'encoded_chunk_h264_'						# add TEMP_FOLDER later. interim encoded video from encoding process, associated with a snippet dict, full names dynamically created eg "interim_h264_0001.mkv"
+
+	CHUNK_INTERIM_ENCODE_TYPE_H264					= r'h.264'.lower()
+	CHUNK_INTERIM_ENCODE_TYPE_FFV1					= r'ffv1'.lower()
+	valid_CHUNK_INTERIM_ENCODE_TYPE					= [CHUNK_INTERIM_ENCODE_TYPE_H264 , CHUNK_INTERIM_ENCODE_TYPE_FFV1]
+	CHUNK_INTERIM_ENCODE_TYPE						= valid_CHUNK_INTERIM_ENCODE_TYPE[0]	# default to CHUNK_INTERIM_ENCODE_TYPE_H264
 	
 	# Now we need a set of inter-step comms files
 	# 1. PREPARATION: 
@@ -189,8 +195,8 @@ def load_settings():
 	FFPROBE_PATH								= UTIL.fully_qualified_filename(os.path.join(r'.\Vapoursynth_x64', r'ffprobe.exe'))
 	VSPIPE_PATH									= UTIL.fully_qualified_filename(os.path.join(r'.\Vapoursynth_x64', r'vspipe.exe'))
 	valid_FFMPEG_ENCODER						= [r'libx264'.lower() , r'h264_nvenc'.lower()]
-	FFMPEG_ENCODER								= valid_FFMPEG_ENCODER[0]
-	
+	FFMPEG_ENCODER								= valid_FFMPEG_ENCODER[0]	# default to r'libx264'.lower() 
+
 	slideshow_CONTROLLER_path					= UTIL.fully_qualified_filename(os.path.join(r'.\slideshow_CONTROLLER.py'))
 	slideshow_LOAD_SETTINGS_path				= UTIL.fully_qualified_filename(os.path.join(r'.\slideshow_LOAD_SETTINGS.py'))
 	slideshow_ENCODER_legacy_path				= UTIL.fully_qualified_filename(os.path.join(r'.\slideshow_ENCODER_legacy.vpy'))
@@ -225,13 +231,6 @@ def load_settings():
 	TARGET_FPSNUM								= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['FRAMERATE_NUMERATOR']
 	TARGET_FPSDEN								= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['FRAMERATE_DENOMINATOR']
 	
-	#TARGET_WIDTH								= int(1920)		# ; "target_width" an integer; set for hd; do not change unless a dire emergency = .
-	#TARGET_HEIGHT								= int(1080)		# ; "target_height" an integer; set for hd; do not change unless a dire emergency = .
-	#TARGET_VIDEO_BITRATE						= r'4.5M'		# 4.5M is ok (HQ) for h.264 1080p25 slideshow material
-	#TARGET_FPSNUM								= int(25)		# ; "target_fpsnum" an integer; set for pal = .
-	#TARGET_FPSDEN								= int(1)		# ; "target_fpsden" an integer; set for pal = .
-
-
 	TARGET_BACKGROUND_AUDIO_FREQUENCY			= int(48000) 
 	TARGET_BACKGROUND_AUDIO_CHANNELS			= int(2) 
 	TARGET_BACKGROUND_AUDIO_BYTEDEPTH			= int(2)		# 2 ; bytes not bits, 2 byte = 16 bit to match pcm_s16le
@@ -317,6 +316,11 @@ def load_settings():
 		'CHUNKS_FILENAME_FOR_ALL_CHUNKS_DICT': 				CHUNKS_FILENAME_FOR_ALL_CHUNKS_DICT,				# add TEMP_FOLDER later.
 		'SNIPPETS_FILENAME_FOR_ALL_SNIPPETS_DICT':			SNIPPETS_FILENAME_FOR_ALL_SNIPPETS_DICT,			# add TEMP_FOLDER later.
 		'CHUNK_ENCODED_FFV1_FILENAME_BASE': 				CHUNK_ENCODED_FFV1_FILENAME_BASE,					# add TEMP_FOLDER later.
+		'CHUNK_ENCODED_H264_FILENAME_BASE': 				CHUNK_ENCODED_H264_FILENAME_BASE,					# add TEMP_FOLDER later.
+		'CHUNK_INTERIM_ENCODE_TYPE_H264':					CHUNK_INTERIM_ENCODE_TYPE_H264,
+		'CHUNK_INTERIM_ENCODE_TYPE_FFV1':					CHUNK_INTERIM_ENCODE_TYPE_FFV1,
+		'valid_CHUNK_INTERIM_ENCODE_TYPE':					valid_CHUNK_INTERIM_ENCODE_TYPE,
+		'CHUNK_INTERIM_ENCODE_TYPE'	:						CHUNK_INTERIM_ENCODE_TYPE,
 		'CURRENT_CHUNK_FILENAME':							CURRENT_CHUNK_FILENAME,								# add TEMP_FOLDER later.
 		'CURRENT_SNIPPETS_FILENAME': 						CURRENT_SNIPPETS_FILENAME,							# add TEMP_FOLDER later.
 		'BACKGROUND_AUDIO_INPUT_FOLDER':					BACKGROUND_AUDIO_INPUT_FOLDER,
@@ -469,6 +473,9 @@ def load_settings():
 	if 'valid_TARGET_RESOLUTION'             in user_specified_settings_dict: del user_specified_settings_dict['valid_TARGET_RESOLUTION']
 	if 'valid_TARGET_BACKGROUND_AUDIO_CODEC' in user_specified_settings_dict: del user_specified_settings_dict['valid_TARGET_BACKGROUND_AUDIO_CODEC']
 	if 'valid_SORT_TYPES'                    in user_specified_settings_dict: del user_specified_settings_dict['valid_SORT_TYPES']
+	if 'valid_CHUNK_INTERIM_ENCODE_TYPE'     in user_specified_settings_dict: del user_specified_settings_dict['valid_CHUNK_INTERIM_ENCODE_TYPE']
+	if 'CHUNK_INTERIM_ENCODE_TYPE_H264'     in user_specified_settings_dict: del user_specified_settings_dict['CHUNK_INTERIM_ENCODE_TYPE_H264']
+	if 'CHUNK_INTERIM_ENCODE_TYPE_FFV1'     in user_specified_settings_dict: del user_specified_settings_dict['CHUNK_INTERIM_ENCODE_TYPE_FFV1']
 
 	final_settings_dict = {**default_settings_dict, **user_specified_settings_dict}	
 	
@@ -515,6 +522,7 @@ def load_settings():
 	CHUNKS_FILENAME_FOR_ALL_CHUNKS_DICT = UTIL.reconstruct_full_directory_and_filename( final_settings_dict['CHUNKS_FILENAME_FOR_ALL_CHUNKS_DICT'], default_path=TEMP_FOLDER, default_filename=final_settings_dict['CHUNKS_FILENAME_FOR_ALL_CHUNKS_DICT'])	# cater for any missing folder
 	SNIPPETS_FILENAME_FOR_ALL_SNIPPETS_DICT = UTIL.reconstruct_full_directory_and_filename( final_settings_dict['SNIPPETS_FILENAME_FOR_ALL_SNIPPETS_DICT'], default_path=TEMP_FOLDER, default_filename=final_settings_dict['SNIPPETS_FILENAME_FOR_ALL_SNIPPETS_DICT'])	# cater for any missing folder
 	CHUNK_ENCODED_FFV1_FILENAME_BASE = UTIL.reconstruct_full_directory_and_filename( final_settings_dict['CHUNK_ENCODED_FFV1_FILENAME_BASE'], default_path=TEMP_FOLDER, default_filename=final_settings_dict['CHUNK_ENCODED_FFV1_FILENAME_BASE'])	# cater for any missing folder
+	CHUNK_ENCODED_H264_FILENAME_BASE = UTIL.reconstruct_full_directory_and_filename( final_settings_dict['CHUNK_ENCODED_H264_FILENAME_BASE'], default_path=TEMP_FOLDER, default_filename=final_settings_dict['CHUNK_ENCODED_H264_FILENAME_BASE'])	# cater for any missing folder
 	CURRENT_CHUNK_FILENAME = UTIL.reconstruct_full_directory_and_filename( final_settings_dict['CURRENT_CHUNK_FILENAME'], default_path=TEMP_FOLDER, default_filename=final_settings_dict['CURRENT_CHUNK_FILENAME'])	# cater for any missing folder
 	CURRENT_SNIPPETS_FILENAME = UTIL.reconstruct_full_directory_and_filename( final_settings_dict['CURRENT_SNIPPETS_FILENAME'], default_path=TEMP_FOLDER, default_filename=final_settings_dict['CURRENT_SNIPPETS_FILENAME'])	# cater for any missing folder
 	BACKGROUND_AUDIO_WITH_OVERLAYED_SNIPPETS_FILENAME = UTIL.reconstruct_full_directory_and_filename( final_settings_dict['BACKGROUND_AUDIO_WITH_OVERLAYED_SNIPPETS_FILENAME'], default_path=TEMP_FOLDER, default_filename=final_settings_dict['BACKGROUND_AUDIO_WITH_OVERLAYED_SNIPPETS_FILENAME'])	# cater for any missing folder
@@ -554,6 +562,11 @@ def load_settings():
 		final_settings_dict['FFMPEG_ENCODER'] = valid_FFMPEG_ENCODER[0]
 	FFMPEG_ENCODER = final_settings_dict['FFMPEG_ENCODER']
 
+	if final_settings_dict['CHUNK_INTERIM_ENCODE_TYPE'].lower() not in valid_CHUNK_INTERIM_ENCODE_TYPE:
+		print(f'load_settings: WARNING: CHUNK_INTERIM_ENCODE_TYPE "{final_settings_dict["CHUNK_INTERIM_ENCODE_TYPE"]}" not one of {valid_CHUNK_INTERIM_ENCODE_TYPE}, defaulting to "{CHUNK_INTERIM_ENCODE_TYPE}"',flush=True,file=sys.stderr)
+		final_settings_dict['CHUNK_INTERIM_ENCODE_TYPE'] = valid_CHUNK_INTERIM_ENCODE_TYPE[0]
+	CHUNK_INTERIM_ENCODE_TYPE = final_settings_dict['CHUNK_INTERIM_ENCODE_TYPE']
+
 	if final_settings_dict['TARGET_BACKGROUND_AUDIO_CODEC'].lower() not in valid_TARGET_BACKGROUND_AUDIO_CODEC:
 		print(f'load_settings: WARNING: TARGET_BACKGROUND_AUDIO_CODEC "{final_settings_dict["TARGET_BACKGROUND_AUDIO_CODEC"]}" not one of {valid_TARGET_BACKGROUND_AUDIO_CODEC}, defaulting to "{TARGET_BACKGROUND_AUDIO_CODEC}"',flush=True,file=sys.stderr)
 		final_settings_dict['TARGET_BACKGROUND_AUDIO_CODEC'] = valid_TARGET_BACKGROUND_AUDIO_CODEC[0]
@@ -563,6 +576,7 @@ def load_settings():
 	final_settings_dict['CHUNKS_FILENAME_FOR_ALL_CHUNKS_DICT'] = CHUNKS_FILENAME_FOR_ALL_CHUNKS_DICT
 	final_settings_dict['SNIPPETS_FILENAME_FOR_ALL_SNIPPETS_DICT'] = SNIPPETS_FILENAME_FOR_ALL_SNIPPETS_DICT
 	final_settings_dict['CHUNK_ENCODED_FFV1_FILENAME_BASE'] = CHUNK_ENCODED_FFV1_FILENAME_BASE
+	final_settings_dict['CHUNK_ENCODED_H264_FILENAME_BASE'] = CHUNK_ENCODED_H264_FILENAME_BASE
 	final_settings_dict['CURRENT_CHUNK_FILENAME'] = CURRENT_CHUNK_FILENAME
 	final_settings_dict['CURRENT_SNIPPETS_FILENAME'] = CURRENT_SNIPPETS_FILENAME
 	final_settings_dict['BACKGROUND_AUDIO_WITH_OVERLAYED_SNIPPETS_FILENAME'] = BACKGROUND_AUDIO_WITH_OVERLAYED_SNIPPETS_FILENAME
@@ -755,11 +769,11 @@ def load_settings():
 		valid_bitrates = [ { i : valid_TARGET_RESOLUTION[i]["BITRATE"] } for i in valid_TARGET_RESOLUTION.keys() ]
 		specially_formatted_settings_list =	[
 										[ 'ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS',	ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS,	r'a list, one or more folders to look in for slideshow pics/videos. the r in front of the string is CRITICAL' ],
-										[ 'BACKGROUND_AUDIO_INPUT_FOLDER',				BACKGROUND_AUDIO_INPUT_FOLDER,				r'Folder containing audio files (in sequence) to make an audio background track (it is random looped if too short). No files = silent background.' ],
-										[ 'FINAL_MP4_WITH_AUDIO_FILENAME',				FINAL_MP4_WITH_AUDIO_FILENAME,				r'the filename of the FINAL slideshow .mp4' ],
 										[ 'SORT_TYPE',									SORT_TYPE,									f'One of {valid_SORT_TYPES}. "win" types sort using numbers in filenames as well regardless of their text length in the filename, per Windows File Explorer.' ],
 										[ 'RECURSIVE',									RECURSIVE,									r'case sensitive: whether to recurse the source folder(s) looking for slideshow pics/videos' ],
 										[ 'TEMP_FOLDER',								TEMP_FOLDER,								r'folder where temporary files go; USE A DISK WITH LOTS OF SPARE DISK SPACE - CIRCA 6 GB PER 100 PICS/VIDEOS' ],
+										[ 'BACKGROUND_AUDIO_INPUT_FOLDER',				BACKGROUND_AUDIO_INPUT_FOLDER,				r'Folder containing audio files (in sequence) to make an audio background track (it is not looped if too short). No files = silent background.' ],
+										[ 'FINAL_MP4_WITH_AUDIO_FILENAME',				FINAL_MP4_WITH_AUDIO_FILENAME,				r'the filename of the FINAL slideshow .mp4' ],
 										[ 'SUBTITLE_DEPTH',								SUBTITLE_DEPTH,								r'how many folders deep to display in subtitles; use 0 for no subtitling' ],
 										[ 'SUBTITLE_FONTSIZE',							SUBTITLE_FONTSIZE,							r'fontsize for subtitles, leave this alone unless confident' ],
 										[ 'SUBTITLE_FONTSCALE',							SUBTITLE_FONTSCALE,							r'fontscale for subtitles, leave this alone unless confident' ],
