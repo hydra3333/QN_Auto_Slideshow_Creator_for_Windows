@@ -213,7 +213,7 @@ is likely an error in your edits to `slideshow_settings.py`.
 
 5. You can safely close the pop-up dos box after it's completed.    
 
-6. Locate try to play the file you specified in setting `FINAL_MP4_WITH_AUDIO_FILENAME`   
+6. Locate and try to play the file you specified in setting `FINAL_MP4_WITH_AUDIO_FILENAME`   
 
 7. If it failed, look for and delete all temporary files in the folder you specified in setting `TEMP_FOLDER`
 
