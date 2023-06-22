@@ -1120,7 +1120,9 @@ if __name__ == "__main__":
 	else:
 		loglevel = 'info'
 		stats = r'-stats'
-		benchmark = stats	# a hack to workaround ffmpeg rejecting zero length string''
+		benchmark = stats	# a hack to workaround ffmpeg rejecting zero length string ''
+		
+	short_gop_size = int( 1 * SETTINGS_DICT['TARGET_FPS'] )	# 1 second worth of GOP @ the designated frametate
 
 	final_mp4_with_audio_filename = SETTINGS_DICT['FINAL_MP4_WITH_AUDIO_FILENAME']
 	ffmpeg_commandline_libx264 = [
@@ -1146,15 +1148,20 @@ if __name__ == "__main__":
 							'-colorspace', 'bt709', 
 							'-color_primaries', 'bt709', 
 							'-color_trc', 'bt709', 
-							'-color_range', 'pc',							'-preset', 'veryslow',
-							'-refs', '3',  			# Set the number of reference frames to 3 SO THAT THE RESULTING MP4 IS TV COMPATIBLE !!! (it is 16 by default, which will not play on TVs)
-							#'-crf', '22', 			# use CRF so that we do not have to guess bitrates
+							'-color_range', 'pc', 
+							'-forced-idr', '1', 		# If forcing keyframes, force them as IDR frames. (default false) 1=true
+							'-strict_gop', '1',			# Set 1 to minimize GOP-to-GOP rate fluctuations (default false) 1=True
+							'-flags', '+cgop',			# closed GOP
+							'-g', str(short_gop_size),
+							'-preset', 'veryslow',
+							'-refs', '3',  				# Set the number of reference frames to 3 SO THAT THE RESULTING MP4 IS TV COMPATIBLE !!! (it is 16 by default, which will not play on TVs)
+							#'-crf', '22', 				# use CRF so that we do not have to guess bitrates
 							'-b:v', SETTINGS_DICT['TARGET_VIDEO_BITRATE'], 			# 4.5M is ok (HQ) for h.264 1080p25 slideshow material; instead of crf 22
-							'-minrate:v', '500k',	# a fixed minimum for TV compatibility
-							'-maxrate:v', '20M', 	# a fixed ceiling for TV compatibility
-							'-bufsize', '20M',		# a fixed ceiling for TV compatibility
+							'-minrate:v', '500k',		# a fixed minimum for TV compatibility
+							'-maxrate:v', '20M', 		# a fixed ceiling for TV compatibility
+							'-bufsize', '20M',			# a fixed ceiling for TV compatibility
 							'-profile:v', 'high',
-							'-level', '5.1',		# we are only 1080p so 5.1 is enough # H.264 Maximum supported bitrate: Level 5.1: 50 Mbps, Level 5.2: 62.5 Mbps
+							'-level', '5.1',			# we are only 1080p so 5.1 is enough # H.264 Maximum supported bitrate: Level 5.1: 50 Mbps, Level 5.2: 62.5 Mbps
 							'-movflags', '+faststart+write_colr',
 							'-y', final_mp4_with_audio_filename,
 							]
@@ -1183,10 +1190,11 @@ if __name__ == "__main__":
 							'-color_range', 'pc',
 							'-pix_fmt', 'nv12', 
 							'-preset', 'p7', 
-							'-multipass', 
-							'fullres', 
-							'-forced-idr', '1', 
-							'-g', '25', 
+							'-multipass', 'fullres', 
+							'-forced-idr', '1', 		# If forcing keyframes, force them as IDR frames. (default false) 1=true
+							'-strict_gop', '1',			# Set 1 to minimize GOP-to-GOP rate fluctuations (default false) 1=True
+							'-flags', '+cgop',			# closed GOP
+							'-g', str(short_gop_size),
 							'-coder:v', 'cabac', 
 							'-spatial-aq', '1', 
 							'-temporal-aq', '1', 
