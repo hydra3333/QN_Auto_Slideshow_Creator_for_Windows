@@ -26,8 +26,8 @@ The process is quite slow, so we automatically encode 150 pics/videos or so
 at a time in `chunks` and concatenate them at the end.    
 
 We're good for 1,000 or so images/videos in a set of directory trees per slideshow, perhaps 5,000 max,
-although the number really is up to you. Recommend you estimate the duration as `num_pics_and_images * 3` 
-(3 seconds per pic) although videos clip durations will affect any estimate a fair bit.    
+although the number really is up to you. Recommend you estimate the duration as `num_pics_and_images * 4` 
+(4 seconds per pic) although videos clip durations will affect any estimate a fair bit.    
 
 Attempting `4k` resolutions requires really **huge** amounts of temporary disk space and **very long** encode times... _c'est la vie_.
 Testing shows `4k` slideshows of home pictures does not appear any better (and sometimes worse) than `1080p` on a TV.   
@@ -65,7 +65,7 @@ be downloaded into the folder tree and a bunch of dependencies "portable install
 ### 1. Create a fresh new directory   
 
 Create a new EMPTY directory somewhere on a disk which has a LOT of free disk space. Try not to use `C:`.   
-It will need, say, 5 Gb free disk space per 100 pics/videos, which will be used for temporary working files.   
+It will need, say, 500 Mb free disk space per 100 pics/videos, which will be used for temporary working files.   
 Later, once installed and configured, you may choose to re-configure to use a temporary folder on another disk.   
 
 **For the purpose of examples below, let's assume you created a new folder called `D:\QN_Auto_Slideshow_Creator_for_Windows`**    
@@ -120,7 +120,7 @@ These give you
 
 Check your disks and their free disk space.    
 During configuration you may choose to specify a different disk/folder to hold
-the very large set of temporary files ... circa 5 Gb per 100 files will be required.
+the very large set of temporary files ... circa 500 Mb per 100 files will be required.
 
 You need to create a folder somewhere to hold audio files (eg music) you want played
 during the slideshow as "background audio" ... even if you do not want any background audio.   
@@ -172,7 +172,7 @@ settings = {
 	'BACKGROUND_AUDIO_INPUT_FOLDER':	r'H:\some_existing_directory\BACKGROUND_AUDIO_INPUT_FOLDER',		# Folder containing audio files (in sequence) to make an audio background track (it is random looped if too short). No files = silent background.
 	'SORT_TYPE':	'alphabetic_files_folders',		# One of ['alphabetic_files_folders', 'alphabetic', 'win_files_folders', 'win_files', 'random']. "win" types sort using numbers in filenames as well regardless of their text length in the filename, per Windows File Explorer.
 	'RECURSIVE':	True,		# case sensitive: whether to recurse the source folder(s) looking for slideshow pics/videos
-	'TEMP_FOLDER':	r'D:\QN_Auto_Slideshow_Creator_for_Windows\TEMP',		# folder where temporary files go; USE A DISK WITH LOTS OF SPARE DISK SPACE - CIRCA 6 GB PER 100 PICS/VIDEOS
+	'TEMP_FOLDER':	r'D:\QN_Auto_Slideshow_Creator_for_Windows\TEMP',		# folder where temporary files go; USE A DISK WITH LOTS OF SPARE DISK SPACE - CIRCA 500 Mb PER 100 PICS/VIDEOS
 	'SUBTITLE_DEPTH':	0,		# how many folders deep to display in subtitles; use 0 for no subtitling
 	'SUBTITLE_FONTSIZE':	18,		# fontsize for subtitles, leave this alone unless confident
 	'SUBTITLE_FONTSCALE':	1.0,		# fontscale for subtitles, leave this alone unless confident

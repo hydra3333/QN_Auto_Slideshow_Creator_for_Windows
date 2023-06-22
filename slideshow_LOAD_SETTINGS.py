@@ -771,7 +771,7 @@ def load_settings():
 										[ 'ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS',	ROOT_FOLDER_SOURCES_LIST_FOR_IMAGES_PICS,	r'a list, one or more folders to look in for slideshow pics/videos. the r in front of the string is CRITICAL' ],
 										[ 'SORT_TYPE',									SORT_TYPE,									f'One of {valid_SORT_TYPES}. "win" types sort using numbers in filenames as well regardless of their text length in the filename, per Windows File Explorer.' ],
 										[ 'RECURSIVE',									RECURSIVE,									r'case sensitive: whether to recurse the source folder(s) looking for slideshow pics/videos' ],
-										[ 'TEMP_FOLDER',								TEMP_FOLDER,								r'folder where temporary files go; USE A DISK WITH LOTS OF SPARE DISK SPACE - CIRCA 6 GB PER 100 PICS/VIDEOS' ],
+										[ 'TEMP_FOLDER',								TEMP_FOLDER,								r'folder where temporary files go; USE A DISK WITH LOTS OF SPARE DISK SPACE - CIRCA 500 Mb PER 100 PICS/VIDEOS' ],
 										[ 'BACKGROUND_AUDIO_INPUT_FOLDER',				BACKGROUND_AUDIO_INPUT_FOLDER,				r'Folder containing audio files (in sequence) to make an audio background track (it is not looped if too short). No files = silent background.' ],
 										[ 'FINAL_MP4_WITH_AUDIO_FILENAME',				FINAL_MP4_WITH_AUDIO_FILENAME,				r'the filename of the FINAL slideshow .mp4' ],
 										[ 'SUBTITLE_DEPTH',								SUBTITLE_DEPTH,								r'how many folders deep to display in subtitles; use 0 for no subtitling' ],
