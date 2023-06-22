@@ -1203,14 +1203,9 @@ if __name__ == "__main__":
 	# SAVING FRAME NUMBERS AND NUM VIDEO FRAMES INFO SNIPPET DICT, 
 	# CREATING SNIPPET JSON, IMPORTING JSON AND ADDING TO ALL_SNIPPETS DICT:
 	print(f"{100*'-'}",flush=True)
-	print(f'CONTROLLER: STARTING INTERIM ENCODING OF CHUNKS INTO INTERIM FFV1 VIDEO FILES',flush=True)
+	print(f'CONTROLLER: STARTING INTERIM ENCODING OF CHUNKS INTO INTERIM '{SETTINGS_DICT["CHUNK_INTERIM_ENCODE_TYPE"]}' VIDEO FILES',flush=True)
 	if UTIL.DEBUG:	
 		print(f"DEBUG: CONTROLLER: Starting encoder loop for each of ALL_CHUNKS tree. chunks: {ALL_CHUNKS_COUNT} files: {ALL_CHUNKS_COUNT_OF_FILES}",flush=True)
-
-??	CHUNK_INTERIM_ENCODE_TYPE_H264					= r'h.264'.lower()
-??	CHUNK_INTERIM_ENCODE_TYPE_FFV1					= r'ffv1'.lower()
-??	valid_CHUNK_INTERIM_ENCODE_TYPE					= [CHUNK_INTERIM_ENCODE_TYPE_H264 , CHUNK_INTERIM_ENCODE_TYPE_FFV1]
-??	CHUNK_INTERIM_ENCODE_TYPE						= valid_CHUNK_INTERIM_ENCODE_TYPE[0]	# default to CHUNK_INTERIM_ENCODE_TYPE_H264
 
 	for individual_chunk_id in range(0,ALL_CHUNKS_COUNT):	# 0 to (ALL_CHUNKS_COUNT - 1)
 		# we cannot just import the legacy encoder and call it with parameters, it is a vpy consumed by ffmpeg and that does not accept parameters
