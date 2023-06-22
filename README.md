@@ -9,7 +9,8 @@ with video audio overlayed onto the background audio.
 
 Started out as something which nothing else seemed to do "automatically" - traversing 
 folder trees to produce a slideshow of photos and video clips taken by phones and 
-old digital cameras, with background audio.
+old digital cameras (inevitably with varying dimensions and rotations), with 
+added background audio.
 
 When you have a surviving parent asking for a slideshow of their lives' pictures 
 and they give you >28,000 photos+videos, what do you do ? Get on with it, of course.
