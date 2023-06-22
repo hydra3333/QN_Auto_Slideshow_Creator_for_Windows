@@ -134,7 +134,7 @@ Rename the copied files to your liking, since they will be read in alphabetical 
 Configuration file `slideshow_settings.py` tells your requirements to the process.    
 
 In File Explorer, double-click on `QN_Auto_Slideshow_Creator_for_Windows.bat` and it will yield a pop-up dos box
-with bunch of messages to ignore, and also generate a template file called `slideshow_settings.py`.    
+with a bunch of messages to ignore, and also generate a template file called `slideshow_settings.py`.    
 That is a once-off thing, unless you delete `slideshow_settings.py` to start afresh.    
 You can safely close the pop-up dos box after it's completed.    
 
