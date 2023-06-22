@@ -157,7 +157,7 @@ Look for and change the settings you need. Please be careful or you will have to
 - `TEMP_FOLDER` - point to a folder on a disk with plenty of free disk space 
 - `TARGET_BACKGROUND_AUDIO_CODEC` - One of 'aac' or 'libfdk_aac' - only if you have an FFmpeg built with "fdk_aac" can use use that HQ encoder
 - `SUBTITLE_DEPTH` - you  can have subtitles of the folder tree containing a pic/image and its filename
-- `MAX_FILES_PER_CHUNK` ... more than 150 files encoded at one will slow the process to a crawl, like 2 day execution times or worse ... 50 to 150 is "doable"
+- `MAX_FILES_PER_CHUNK` ... more than 150 files encoded at once will slow the process to a crawl, like 2 day execution times or worse ... 50 to 150 is "doable"
 
 **Don't touch any of the other settings unless you're prepared to fix things.**    
 
