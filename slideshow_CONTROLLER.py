@@ -342,7 +342,7 @@ def audio_standardize_and_import_file(audio_filename, headroom_db, ignore_error_
 		stats = r'-stats'
 		benchmark = r'-benchmark'
 	else:
-		loglevel = 'info'
+		loglevel = 'warning'
 		stats = r'-nostats'
 		benchmark = stats	# a hack to workaround ffmpeg rejecting zero length string''
 
@@ -354,7 +354,7 @@ def audio_standardize_and_import_file(audio_filename, headroom_db, ignore_error_
 							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_DECODER),
 							'-i', audio_filename,
 							'-vn',
-							'-af', f'ebur128=peak=true:target={headroom_db}:dualmono=true',	# this normalizes audio using industry standard ebur128; ffmpeg takes a while and it may not even work
+							'-af', f'ebur128=peak=true:target={headroom_db}:dualmono=true:framelog=quiet',	# this normalizes audio using industry standard ebur128; ffmpeg takes a while and it may not even work
 							'-acodec', temporary_background_audio_codec,
 							'-threads', str(UTIL.NUM_THREADS_FOR_FFMPEG_ENCODER),
 							'-ac', str(target_background_audio_channels),

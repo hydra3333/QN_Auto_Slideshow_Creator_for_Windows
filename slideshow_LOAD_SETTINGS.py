@@ -561,20 +561,26 @@ def load_settings():
 		TARGET_RESOLUTION		= list(valid_TARGET_RESOLUTION.keys())[0]	# the first key in that dict
 		TARGET_WIDTH 			= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['WIDTH']
 		TARGET_HEIGHT	 		= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['HEIGHT']
-		TARGET_VIDEO_BITRATE	= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['BITRATE']
 		TARGET_FPSNUM			= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['FRAMERATE_NUMERATOR']
 		TARGET_FPSDEN			= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['FRAMERATE_DENOMINATOR']
+		TARGET_VIDEO_BITRATE	= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['BITRATE']
+		
 		print(f'load_settings: WARNING: TARGET_RESOLUTION "{final_settings_dict["TARGET_RESOLUTION"]}" not one of {valid_TARGET_RESOLUTION}, resetting to "{TARGET_RESOLUTION}"',flush=True,file=sys.stderr)
 		final_settings_dict['TARGET_RESOLUTION'] = TARGET_RESOLUTION
+
 	TARGET_RESOLUTION			= final_settings_dict['TARGET_RESOLUTION']						# grab the specified TARGET_RESOLUTION
 	TARGET_WIDTH 				= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['WIDTH']		# based on specified TARGET_RESOLUTION
 	TARGET_HEIGHT	 			= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['HEIGHT']		# based on specified TARGET_RESOLUTION
-	TARGET_VIDEO_BITRATE		= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['BITRATE']	# based on specified TARGET_RESOLUTION
+	TARGET_FPSNUM				= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['FRAMERATE_NUMERATOR']
+	TARGET_FPSDEN				= valid_TARGET_RESOLUTION[TARGET_RESOLUTION]['FRAMERATE_DENOMINATOR']
+	TARGET_VIDEO_BITRATE		= final_settings_dict['TARGET_VIDEO_BITRATE']		# based on specified TARGET_RESOLUTION, allow user to change it
+		
+	final_settings_dict['TARGET_RESOLUTION'] = TARGET_RESOLUTION
 	final_settings_dict['TARGET_WIDTH'] = TARGET_WIDTH											# poke back the right value based on specified TARGET_RESOLUTION
 	final_settings_dict['TARGET_HEIGHT'] = TARGET_HEIGHT										# poke back the right value based on specified TARGET_RESOLUTION
-	final_settings_dict['TARGET_VIDEO_BITRATE'] = TARGET_VIDEO_BITRATE							# poke back the right value based on specified TARGET_RESOLUTION
 	final_settings_dict['TARGET_FPSNUM'] = TARGET_FPSNUM										# poke back the right value based on specified TARGET_RESOLUTION
 	final_settings_dict['TARGET_FPSDEN'] = TARGET_FPSDEN										# poke back the right value based on specified TARGET_RESOLUTION
+	final_settings_dict['TARGET_VIDEO_BITRATE'] = TARGET_VIDEO_BITRATE							# poke back the right value based on specified TARGET_RESOLUTION
 
 	if final_settings_dict['SORT_TYPE'].lower() not in valid_SORT_TYPES:
 		print(f'load_settings: WARNING: SORT_TYPE "{final_settings_dict["SORT_TYPE"]}" not one of {valid_SORT_TYPES}, defaulting to "{SORT_TYPE}"',flush=True,file=sys.stderr)
