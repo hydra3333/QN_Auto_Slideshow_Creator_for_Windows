@@ -41,6 +41,7 @@ as examples. Drag and drop a slideshow .mp4 file onto it and it'll create a new 
 Then use your favourite dvd creator with the .mpg file (no transcoding required by the DVD creator).
 Or, if your favourite dvd creator does video transcodes and resizes, then just import the final mp4.    
 
+___
 # How-to : short version
 
 1. Create a new _empty_ folder on a disk with **lots** of free space
@@ -53,6 +54,7 @@ Or, if your favourite dvd creator does video transcodes and resizes, then just i
 8. Double-click `QN_Auto_Slideshow_Creator_for_Windows.bat` which will consume `slideshow_settings.py` and create the slideshow according to your settings
 9. Look for the resulting slideshow file you specified with setting `FINAL_MP4_WITH_AUDIO_FILENAME`
 
+___
 # How-to : the details
 
 ## Portable "Installation" (x64 only)
@@ -229,9 +231,52 @@ So, re-edit `slideshow_settings.py` and make required changes, specifically to u
 
 Then refer above to **Starting the slideshow process**
 
+___
+# Doing it in bulk
+## fire-and-forget for a few hours
+
+### A case where you have lots of pics/images and just want to organise 
+### once and then leave it do its thing and produce multiple slideshows
+
+Imagine you are organised and have separated your pics into groups
+of say 1,000 or so, each group within it's own folder tree,
+and you pop every group folder into one main folder.
+
+This script `separate_slideshows_for_each_folder_in_a_top_folder.bat` will
+run across the main folder and produce a slideshow for each of the group folders it finds there.
+
+EACH SLIDESHOW WILL COMPRISE THAT FOUND GROUP FOLDER AND ITS SUBFOLDERS
+AND THE SLIDESHOW .MP4 FILENAME WILL BE THE SAME AS THE GROUP FOLDER NAME.
+eg	
+```
+main_folder
+		- group_folder_1
+			- folder_A
+				- folder_A_A
+			- folder_B
+		- group_folder_2
+			- folder_C
+			- folder_D
+```
+will produce a slideshow `group_folder_1.mp4` and another slideshow `group_folder_2.mp4`.
+
+Assumptions:
+	- Will not work if ANY filenames or foldernames contain single quotes or double quotes, so you must have renamed them first ... have a look in the `draft` folder :)
+	- the slideshow .mp4 files will go into the same place as this script and the other .py files `.\`
+	- BACKGROUND_AUDIO_INPUT_FOLDER folder is in the same place as this script and the other .py files  - `.\BACKGROUND_AUDIO_INPUT_FOLDER`
+	- temp folder is in the same place as this script and the other .py files  - `.\TEMP`
+	- see other settings below, you can edit them ... careful to ensure syntax is EXACT and precisely maintained
+
+Edit this variable to point to the "main" folder mentioned above:    
+`set "top_folder=G:\main-Pat.and.Ted.Photos"`
+
+Edit this variable to declare a prefix to be prepended to each .mp4 slideshow's filename:    
+`set "mp4_filename_prefix=slideshow.of.Pat.and.Ted_Photos."`
+
+Now you are ready to save your changes to this .bat and then double-click on it to run it.    
 
 ___
-## of no possible interest to anyone
+# of no possible interest to anyone
 
 I ran a 'show_unique_properties' thing over our archive of home pics and videos, and found a variety of cameras used. 
 Each camera probably had its own issues with, and settings for, video and image properties and metadata.
