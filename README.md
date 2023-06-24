@@ -453,3 +453,11 @@ Yes, testing indicated they were all different.
 {'EXIF_Model': 'KODAK Z740 ZOOM DIGITAL CAMERA',
 {'EXIF_Model': 'Sony Visual Communication Camera', 'EXIF_Software': 'ArcSoft WebCam Companion 3', 'EXIF_Copyright': 'ArcSoft Inc.'}
 ```
+___
+# Warranty
+
+Subject to, and in addition, to licensing;
+- No warranty whatsoever, express or implied, is in any way given
+- By using and/or on-providing any of the software, in whole or in part, you agree to fully indemnify the Author and/or Agents against any and all claims arising from that use and/or provision, under any theory, in any manner and in any jurisdiction
+
+
