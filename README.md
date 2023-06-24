@@ -233,7 +233,6 @@ Then refer above to **Starting the slideshow process**
 
 ___
 # Doing it in bulk
-## fire-and-forget for a few hours
 
 ### A case where you have lots of pics/images and just want to organise 
 ### once and then leave it do its thing and produce multiple slideshows
