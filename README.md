@@ -260,11 +260,11 @@ main_folder
 will produce a slideshow `group_folder_1.mp4` and another slideshow `group_folder_2.mp4`.
 
 Assumptions:
-	- Will not work if ANY filenames or foldernames contain single quotes or double quotes, so you must have renamed them first ... have a look in the `draft` folder :)
-	- the slideshow .mp4 files will go into the same place as this script and the other .py files `.\`
-	- BACKGROUND_AUDIO_INPUT_FOLDER folder is in the same place as this script and the other .py files  - `.\BACKGROUND_AUDIO_INPUT_FOLDER`
-	- temp folder is in the same place as this script and the other .py files  - `.\TEMP`
-	- see other settings below, you can edit them ... careful to ensure syntax is EXACT and precisely maintained
+- Will not work if ANY filenames or foldernames contain single quotes or double quotes, so you must have renamed them first ... have a look in the `draft` folder :)
+- the slideshow .mp4 files will go into the same place as this script and the other .py files `.\`
+- BACKGROUND_AUDIO_INPUT_FOLDER folder is in the same place as this script and the other .py files  - `.\BACKGROUND_AUDIO_INPUT_FOLDER`
+- temp folder is in the same place as this script and the other .py files  - `.\TEMP`
+- see other settings below, you can edit them ... careful to ensure syntax is EXACT and precisely maintained
 
 Edit this variable to point to the "main" folder mentioned above:    
 `set "top_folder=G:\main-Pat.and.Ted.Photos"`
