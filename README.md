@@ -453,5 +453,3 @@ Yes, testing indicated they were all different.
 {'EXIF_Model': 'KODAK Z740 ZOOM DIGITAL CAMERA',
 {'EXIF_Model': 'Sony Visual Communication Camera', 'EXIF_Software': 'ArcSoft WebCam Companion 3', 'EXIF_Copyright': 'ArcSoft Inc.'}
 ```
-
-

@@ -1,4 +1,4 @@
-@echo off
+@ECHO off
 @setlocal ENABLEDELAYEDEXPANSION
 @setlocal enableextensions
 
@@ -16,6 +16,8 @@ REM    GNU General Public License for more details.
 REM
 REM    You should have received a copy of the GNU General Public License
 REM    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+REM DRAG AND DROP a slideshow .MP4 onto this .bat to convert it to DVD .MPG
 
 if %NUMBER_OF_PROCESSORS% LEQ 2 ( set use_cores=1 ) else ( set /a use_cores=%NUMBER_OF_PROCESSORS%/2 )
 
@@ -45,12 +47,55 @@ REM
 REM +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 REM
 
-@ECHO ON
+Set "slideshow_ffmpegexe64=%vs_path%ffmpeg.exe"
+set "input_mp4=%~f1"
+set "output=%~f1.DVD.mpg"
+set "log=%~f1.DVD.mpg.log"
 
-set "script=.\slideshow_CONTROLLER.py"
+IF NOT EXIST "!slideshow_ffmpegexe64!" (
+	echo FFmpeg file '!slideshow_ffmpegexe64!' does not exist.
+	echo Exiting without success.
+	pause
+	exit
+)
 
-"!python_exe!" "!script!"
+IF NOT EXIST "!input_mp4!" (
+	echo The input file '!!' does not exist. Drag and drop a .mp4 onto this .bat
+	echo Exiting without success.
+	pause
+	exit
+)
+
+REM set the bitrates or DVD
+set /a "v_bitrate=9M"
+set /a "v_min=1M"
+set /a "v_max=9.2M"
+set /a "v_buf=2M"
+set /a "v_pkt=2048"
+set /a "v_mux=10M"
+set /a "v_framerate=25"
+set /a "v_gop_size=15"
+
+set    "a_bitrate=224k"
+set /a "a_freq=48000"
+
+set "cmd_DVD="
+set "cmd_DVD=!cmd_DVD!"!slideshow_ffmpegexe64!" "
+set "cmd_DVD=!cmd_DVD! -hide_banner -v info "
+set "cmd_DVD=!cmd_DVD! -stats "
+set "cmd_DVD=!cmd_DVD! -i "!input_mp4!" -probesize 200M -analyzeduration 200M "
+set "cmd_DVD=!cmd_DVD! -sws_flags lanczos+accurate_rnd+full_chroma_int+full_chroma_inp -strict experimental "
+set "cmd_DVD=!cmd_DVD! -filter_complex "scale=720:576:flags='lanczos+accurate_rnd+full_chroma_int+full_chroma_inp',format=yuv420p,setdar=16/9" "
+set "cmd_DVD=!cmd_DVD! -target pal-dvd -r %v_framerate% -g %v_gop_size%"
+set "cmd_DVD=!cmd_DVD! -b:v %v_bitrate% -minrate:v %v_min% -maxrate:v %v_max% -bufsize %v_buf% -packetsize %v_pkt% -muxrate %v_mux%"
+set "cmd_DVD=!cmd_DVD! -c:a ac3 -ac 2 -b:a %a_bitrate% -ar %a_freq%
+set "cmd_DVD=!cmd_DVD! -y "!output!""
+REM
+
+echo !cmd_DVD! > "!log!" 2>&1
+!cmd_DVD! >> "!log!" 2>&1
+
+"!log!"
 
 pause
 exit
-

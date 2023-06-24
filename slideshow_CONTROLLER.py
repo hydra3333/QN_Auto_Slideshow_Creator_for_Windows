@@ -12,6 +12,17 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+import sys
+import os
+print(f"",flush=True,file=sys.stderr)
+print(f"<This Script: '{os.path.abspath(__file__)}'>",flush=True,file=sys.stderr)
+print(f"<QN_Auto_Slideshow_Creator_for_Windows>  Copyright (C) <2023> <congoing>  <hydra3333>",flush=True,file=sys.stderr)
+print(f"This program comes with ABSOLUTELY NO WARRANTY; for details refer to the license on",flush=True,file=sys.stderr)
+print(f"github at https://github.com/hydra3333/QN_Auto_Slideshow_Creator_for_Windows/blob/main/LICENSE.",flush=True,file=sys.stderr)
+print(f"This is free software, and you are welcome to redistribute it",flush=True,file=sys.stderr)
+print(f"under certain conditions;  for details refer to the license on",flush=True,file=sys.stderr)
+print(f"github at https://github.com/hydra3333/QN_Auto_Slideshow_Creator_for_Windows/blob/main/LICENSE.",flush=True,file=sys.stderr)
+print(f"",flush=True,file=sys.stderr)
 
 # 1.	Modifying the sys.path list in a module DOES NOT not affect the sys.path of other modules or the main program.
 # 2.	Modifying the sys.path list in the MAIN PROGRAM WILL affect the search path for	all modules imported by that program.
