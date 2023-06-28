@@ -93,7 +93,7 @@ REM for building wheels
 "%py_exe%" pip.pyz install twine --target=%vs_path% --no-cache-dir --upgrade --check-build-dependencies --force-reinstall --upgrade-strategy eager --verbose
 "%py_exe%" pip.pyz install virtualenv --target=%vs_path% --no-cache-dir --upgrade --check-build-dependencies --force-reinstall --upgrade-strategy eager --verbose
 REM need to uninstall markdown so mkdocs can install an older version .. .for building wheels
-REM "%py_exe%" pip.pyz uninstall markdown --yes --break-system-packages
+REM "%py_exe%" pip.pyz uninstall markdown --break-system-packages
 REM "%py_exe%" pip.pyz install mkdocs --target=%vs_path% --no-cache-dir --upgrade --check-build-dependencies --force-reinstall --upgrade-strategy eager --verbose
 REM the reviewer
 "%py_exe%" pip.pyz install pip-review --target=%vs_path% --no-cache-dir --upgrade --check-build-dependencies --force-reinstall --upgrade-strategy eager --verbose
@@ -309,13 +309,15 @@ IF EXIST "%vs_temp%ffmpeg.zip" (del /f "%vs_temp%ffmpeg.zip")
 "%vs_CD%wget.exe" -v -t 1 --server-response --no-check-certificate --timeout=360 -nd -np -nH --no-cookies --output-document="%vs_temp%ffmpeg.zip" https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip
 "%vs_path%7za.exe" e -y -aoa "%vs_temp%ffmpeg.zip" -o"%vs_path%" ffmpeg-master-latest-win64-gpl\bin
 copy /Y /V "%vs_path%ffmpeg.exe" "%vs_CD%"
-copy /Y /V "%vs_path%ffmpeg.exe" "%vs_path%"
+REM copy /Y /V "%vs_path%ffmpeg.exe" "%vs_path%"
 copy /Y /V "%vs_path%ffprobe.exe" "%vs_CD%"
-copy /Y /V "%vs_path%ffprobe.exe" "%vs_path%"
+REM copy /Y /V "%vs_path%ffprobe.exe" "%vs_path%"
+copy /Y /V "%vs_path%MediaInfo.exe "%vs_CD%"
+REM copy /Y /V "%vs_path%MediaInfo.exe "%vs_path%"
 
 REM THIS WORKS TO RETRIEVE THE LATEST RELEASE FROM GITHUB
 CD "%py_path%"
-"%py_exe%" pip.pyz uninstall pydub --verbose
+"%py_exe%" pip.pyz uninstall pydub --verbose  --yes
 CD "%vs_path%"
 del /f "%vs_temp%pydub.zip"
 "%vs_CD%wget.exe" -v -t 1 --server-response --no-check-certificate --timeout=360 -nd -np -nH --no-cookies --output-document="%vs_temp%pydub.zip" https://github.com/jiaaro/pydub/archive/refs/heads/master.zip
