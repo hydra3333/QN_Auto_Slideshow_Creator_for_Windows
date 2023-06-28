@@ -93,7 +93,7 @@ REM for building wheels
 "%py_exe%" pip.pyz install twine --target=%vs_path% --no-cache-dir --upgrade --check-build-dependencies --force-reinstall --upgrade-strategy eager --verbose
 "%py_exe%" pip.pyz install virtualenv --target=%vs_path% --no-cache-dir --upgrade --check-build-dependencies --force-reinstall --upgrade-strategy eager --verbose
 REM need to uninstall markdown so mkdocs can install an older version .. .for building wheels
-REM "%py_exe%" pip.pyz uninstall markdown --break-system-packages
+REM "%py_exe%" pip.pyz uninstall markdown --break-system-packages --yes
 REM "%py_exe%" pip.pyz install mkdocs --target=%vs_path% --no-cache-dir --upgrade --check-build-dependencies --force-reinstall --upgrade-strategy eager --verbose
 REM the reviewer
 "%py_exe%" pip.pyz install pip-review --target=%vs_path% --no-cache-dir --upgrade --check-build-dependencies --force-reinstall --upgrade-strategy eager --verbose
