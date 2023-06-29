@@ -128,7 +128,9 @@ def sort_files_list(files_list, sort_type='alphabetic_files_folders'):
 	if sort_type.lower() == 'alphabetic'.lower():
 		return sorted(files_list, key=lambda p: p.name.lower())
 	elif sort_type.lower() == 'alphabetic_files_folders'.lower():
-		return sorted(files_list, key=lambda p: (p.parent.name.lower(), p.name.lower()))
+		#return sorted(files_list, key=lambda p: (p.parent.name.lower(), p.name.lower()))
+		return sorted(files_list, key=lambda p: (os.path.abspath(p).lower(), p.name.lower()))
+		os.path.abspath()
 	elif sort_type.lower() == 'win_files'.lower():
 		str_cmp_logical = ctypes.windll.Shlwapi.StrCmpLogicalW
 		windows_sort_key = lambda path: str_cmp_logical(str(path).encode('utf-16le'), str(path).encode('utf-16le'))
@@ -1575,25 +1577,28 @@ if __name__ == "__main__":
 	##########################################################################################################################################
 	##########################################################################################################################################
 	# CLEANUP
-	print(f"CONTROLLER: START CLEANUP ... REMOVING TEMPORARY FILES IN FOLDER '{SETTINGS_DICT['TEMP_FOLDER']}'",flush=True)
-	f = UTIL.fully_qualified_filename(SETTINGS_DICT['BACKGROUND_AUDIO_WITH_OVERLAYED_SNIPPETS_FILENAME'])
-	if os.path.exists(f): os.remove(f)	
-	f = UTIL.fully_qualified_filename(individual_chunk_dict['chunk_fixed_json_filename'])
-	if os.path.exists(f): os.remove(f)	
-	f = UTIL.fully_qualified_filename(SETTINGS_DICT['CHUNKS_FILENAME_FOR_ALL_CHUNKS_DICT'])
-	if os.path.exists(f): os.remove(f)	
-	f = UTIL.fully_qualified_filename(SETTINGS_DICT['CURRENT_CHUNK_FILENAME'])
-	if os.path.exists(f): os.remove(f)	
-	f = UTIL.fully_qualified_filename(SETTINGS_DICT['TEMPORARY_FFMPEG_CONCAT_LIST_FILENAME'])
-	if os.path.exists(f): os.remove(f)	
-	for individual_chunk_id in range(0,ALL_CHUNKS_COUNT):	# 0 to (ALL_CHUNKS_COUNT - 1)
-		f = UTIL.fully_qualified_filename(SETTINGS_DICT['CHUNK_ENCODED_FFV1_FILENAME_BASE'] + str(individual_chunk_id).zfill(5) + r'.mkv')
-		if DEBUG:	print(f'DEBUG: CONTROLLER: attempting to delete FFV1 chunk file "{f}"',flush=True)
-		if os.path.exists(f): os.remove(str(f))	
-		f = UTIL.fully_qualified_filename(SETTINGS_DICT['CHUNK_ENCODED_H264_FILENAME_BASE'] + str(individual_chunk_id).zfill(5) + r'.mkv')
-		if DEBUG:	print(f'DEBUG: CONTROLLER: attempting to delete H.264 chunk file "{f}"',flush=True)
-		if os.path.exists(f): os.remove(str(f))	
-	print(f"CONTROLLER: FINISHED CLEANUP OF FILES IN '{SETTINGS_DICT['TEMP_FOLDER']}'",flush=True)
+	if UTIL.DEBUG:
+		print(f"CONTROLLER: is DEBUG mode, no CLEANUP OF FILES IN '{SETTINGS_DICT['TEMP_FOLDER']}'",flush=True)
+	else:
+		print(f"CONTROLLER: START CLEANUP ... REMOVING TEMPORARY FILES IN FOLDER '{SETTINGS_DICT['TEMP_FOLDER']}'",flush=True)
+		f = UTIL.fully_qualified_filename(SETTINGS_DICT['BACKGROUND_AUDIO_WITH_OVERLAYED_SNIPPETS_FILENAME'])
+		if os.path.exists(f): os.remove(f)	
+		f = UTIL.fully_qualified_filename(individual_chunk_dict['chunk_fixed_json_filename'])
+		if os.path.exists(f): os.remove(f)	
+		f = UTIL.fully_qualified_filename(SETTINGS_DICT['CHUNKS_FILENAME_FOR_ALL_CHUNKS_DICT'])
+		#if os.path.exists(f): os.remove(f)	
+		f = UTIL.fully_qualified_filename(SETTINGS_DICT['CURRENT_CHUNK_FILENAME'])
+		if os.path.exists(f): os.remove(f)	
+		f = UTIL.fully_qualified_filename(SETTINGS_DICT['TEMPORARY_FFMPEG_CONCAT_LIST_FILENAME'])
+		if os.path.exists(f): os.remove(f)	
+		for individual_chunk_id in range(0,ALL_CHUNKS_COUNT):	# 0 to (ALL_CHUNKS_COUNT - 1)
+			f = UTIL.fully_qualified_filename(SETTINGS_DICT['CHUNK_ENCODED_FFV1_FILENAME_BASE'] + str(individual_chunk_id).zfill(5) + r'.mkv')
+			if DEBUG:	print(f'DEBUG: CONTROLLER: attempting to delete FFV1 chunk file "{f}"',flush=True)
+			if os.path.exists(f): os.remove(str(f))	
+			f = UTIL.fully_qualified_filename(SETTINGS_DICT['CHUNK_ENCODED_H264_FILENAME_BASE'] + str(individual_chunk_id).zfill(5) + r'.mkv')
+			if DEBUG:	print(f'DEBUG: CONTROLLER: attempting to delete H.264 chunk file "{f}"',flush=True)
+			if os.path.exists(f): os.remove(str(f))	
+		print(f"CONTROLLER: FINISHED CLEANUP OF FILES IN '{SETTINGS_DICT['TEMP_FOLDER']}'",flush=True)
 
 	##########################################################################################################################################
 	##########################################################################################################################################
