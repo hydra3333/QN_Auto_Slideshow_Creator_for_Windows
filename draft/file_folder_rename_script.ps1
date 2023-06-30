@@ -1,25 +1,4 @@
-# Copyright (C) <2023> <ongoing>  <hydra3333>
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-# Sanitize FolderNames and FileNames in a folder tree.
-# Remove commas, ampersands, spaces and whatnot and replace them with underscores.
-# Identify a date in a Folder/File name and rename the folder/file with that date moved
-# to the front of the name in the format YYYY-MM-DD ... greatly assists with sorting.
-#
-# NEVER use this on an original source tree - it renames files/folders
-# ... you know before you start that you'll not get the original folder/file names back again.
+# "file_folder_rename_script.ps1"
 #
 # Invoke Like:
 #	@echo off
@@ -112,6 +91,7 @@ Get-ChildItem -Path $TopFolder -Recurse -Directory | ForEach-Object {
 		#Write-Host "FOLDER_NO_MATCH: $folderName"
 	}
 	# Only print if the folder name is changing
+	$newFolderName = $newFolderName -replace '\-', '_'
 	$newFolderName = $newFolderName -replace '\ ', '_'
 	$newFolderName = $newFolderName -replace '\"', '_'
 	$newFolderName = $newFolderName -replace '\''', '_'
@@ -122,9 +102,14 @@ Get-ChildItem -Path $TopFolder -Recurse -Directory | ForEach-Object {
 	$newFolderName = $newFolderName -replace '\(', '_'
 	$newFolderName = $newFolderName -replace '\)', '_'
 
-	$newFolderName = $newFolderName -replace '_-_', '-'
-	$newFolderName = $newFolderName -replace '-_', '-'
-	$newFolderName = $newFolderName -replace '_-', '-'
+	$newFolderName = $newFolderName -replace '__', '_'
+	$newFolderName = $newFolderName -replace '__', '_'
+	$newFolderName = $newFolderName -replace '__', '_'
+	$newFolderName = $newFolderName -replace '__', '_'
+	$newFolderName = $newFolderName -replace '__', '_'
+	#$newFolderName = $newFolderName -replace '_-_', '-'
+	#$newFolderName = $newFolderName -replace '-_', '-'
+	#$newFolderName = $newFolderName -replace '_-', '-'
 
 	$newFolderName = $newFolderName -replace '_+', '_'	# not the same as the others
 	$newFolderName = $newFolderName.Trim().TrimStart('_').TrimEnd('_').TrimStart('-').TrimEnd('-').TrimStart('.').TrimEnd('.')
@@ -132,18 +117,20 @@ Get-ChildItem -Path $TopFolder -Recurse -Directory | ForEach-Object {
 		#Write-Host "FOLDER Current Name: '$folderPath' Proposed New Name: '$newFolderName'"
 		Write-Host "Rename-Item -LiteralPath $folderPath -NewName $newFolderName -Force"
 		# Uncomment the line below to perform the rename
-		Rename-Item -LiteralPath $folderPath -NewName $newFolderName -Force
+		#Rename-Item -LiteralPath $folderPath -NewName $newFolderName -Force
 	}
 }
 Write-Host "END FOLDER RENAMES"
 }
 
 if ($true) {
-Write-Host "START FILE FOLDER RENAMES"
+Write-Host "START FILE RENAMES"
 # Pass 2: Update file names
 Get-ChildItem -Path $TopFolder -Recurse -File | ForEach-Object {
 	$filePath = $_.FullName
+	$fileDirectory = $_.DirectoryName
 	$fileName = $_.Name
+	$fileExtension = $_.Extension
 	$newFileName = $fileName
 	#
 	if ($fileName -match $regex_date_format_both) {	# DD-MM-YYYY D-M-YYYY D-MM-YYYY DD-M-YYYY
@@ -177,6 +164,8 @@ Get-ChildItem -Path $TopFolder -Recurse -File | ForEach-Object {
 		#Write-Host "FILE_NO_MATCH: $fileName"
 	}
 	# Only print if the file name is changing
+	$newFileName = $newFileName -replace '\-', '_'
+	$newFileName = $newFileName -replace '\-', '_'
 	$newFileName = $newFileName -replace '\ ', '_'
 	$newFileName = $newFileName -replace '\"', '_'
 	$newFileName = $newFileName -replace '\''', '_'
@@ -187,13 +176,33 @@ Get-ChildItem -Path $TopFolder -Recurse -File | ForEach-Object {
 	$newFileName = $newFileName -replace '\(', '_'
 	$newFileName = $newFileName -replace '\)', '_'
 
-	$newFileName = $newFileName -replace '_-_', '-'
-	$newFileName = $newFileName -replace '-_', '-'
-	$newFileName = $newFileName -replace '_-', '-'
+	$newFileName = $newFileName -replace '__', '_'
+	$newFileName = $newFileName -replace '__', '_'
+	$newFileName = $newFileName -replace '__', '_'
+	$newFileName = $newFileName -replace '__', '_'
+	$newFileName = $newFileName -replace '__', '_'
+	#$newFileName = $newFileName -replace '_-_', '-'
+	#$newFileName = $newFileName -replace '-_', '-'
+	#$newFileName = $newFileName -replace '_-', '-'
 	
 	$newFileName = $newFileName -replace '_+', '_'	# not the same as the others
 	$newFileName = $newFileName.Trim().TrimStart('_').TrimEnd('_').TrimStart('-').TrimEnd('-').TrimStart('.').TrimEnd('.')
 	if ($newFileName -ne $fileName) {
+		$counter = 0
+		$fileNameOnly = [System.IO.Path]::GetFileNameWithoutExtension($newFileName)
+		$fileExtension = [System.IO.Path]::GetExtension($newFileName)
+		$FileNameWithCounter = $fileNameOnly
+		while (Test-Path (Join-Path "$fileDirectory" "$FileNameWithCounter$fileExtension")) {
+			$counter++
+			if ($counter -gt 998) {
+					Write-Host "Unable to Rename-Item -LiteralPath $filePath ... halting after 998 attempts to find an unused sequentially numbered filename"
+					return
+			}
+			$padding = $counter.ToString("000")
+			$FileNameWithCounter =  "$fileNameOnly.$padding"
+		}
+		$newFileName = "$FileNameWithCounter$fileExtension"
+
 		#Write-Host "FILE Current Name: '$filePath' Proposed New Name: '$newFileName'"
 		Write-Host "Rename-Item -LiteralPath $filePath -NewName $newFileName -Force"
 		# Uncomment the line below to perform the rename
