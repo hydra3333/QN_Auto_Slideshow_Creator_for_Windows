@@ -129,7 +129,7 @@ def sort_files_list(files_list, sort_type='alphabetic_files_folders'):
 		return sorted(files_list, key=lambda p: p.name.lower())
 	elif sort_type.lower() == 'alphabetic_files_folders'.lower():
 		#return sorted(files_list, key=lambda p: (p.parent.name.lower(), p.name.lower()))
-		return sorted(files_list, key=lambda p: (os.path.abspath(p).lower(), p.name.lower()))
+		return sorted(files_list, key=lambda p: (os.path.dirname(os.path.abspath(p)).lower(), p.name.lower()))
 	elif sort_type.lower() == 'win_files'.lower():
 		str_cmp_logical = ctypes.windll.Shlwapi.StrCmpLogicalW
 		windows_sort_key = lambda path: str_cmp_logical(str(path).encode('utf-16le'), str(path).encode('utf-16le'))
