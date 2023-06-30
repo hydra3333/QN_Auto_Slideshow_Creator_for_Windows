@@ -175,6 +175,8 @@ Get-ChildItem -Path $TopFolder -Recurse -File | ForEach-Object {
 	$newFileName = $newFileName -replace '\!', '_'
 	$newFileName = $newFileName -replace '\(', '_'
 	$newFileName = $newFileName -replace '\)', '_'
+	$newFileName = $newFileName -replace '\{', '.'
+	$newFileName = $newFileName -replace '\}', '.'
 
 	$newFileName = $newFileName -replace '__', '_'
 	$newFileName = $newFileName -replace '__', '_'
@@ -187,7 +189,9 @@ Get-ChildItem -Path $TopFolder -Recurse -File | ForEach-Object {
 	
 	$newFileName = $newFileName -replace '_+', '_'	# not the same as the others
 	$newFileName = $newFileName.Trim().TrimStart('_').TrimEnd('_').TrimStart('-').TrimEnd('-').TrimStart('.').TrimEnd('.')
-	$fileNameOnly = [System.IO.Path]::GetFileNameWithoutExtension($newFileName).Trim().TrimStart('_').TrimEnd('_').TrimStart('-').TrimEnd('-').TrimStart('.').TrimEnd('.')
+	$fileNameOnly = [System.IO.Path]::GetFileNameWithoutExtension($newFileName)
+	$fileNameOnly = $fileNameOnly -replace '_+', '_'	# not the same as the others
+	$fileNameOnly = $fileNameOnly.Trim().TrimStart('_').TrimEnd('_').TrimStart('-').TrimEnd('-').TrimStart('.').TrimEnd('.')
 	$fileExtension = [System.IO.Path]::GetExtension($newFileName)
 	$newFileName = "$fileNameOnly$fileExtension"
 	if ($newFileName -ne $fileName) {
