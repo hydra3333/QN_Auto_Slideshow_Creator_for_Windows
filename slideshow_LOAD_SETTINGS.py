@@ -172,7 +172,7 @@ def load_settings():
 	
 	TEMP_FOLDER									= UTIL.fully_qualified_directory_no_trailing_backslash(r'.\TEMP')				# TEMP_FOLDER
 	PIC_EXTENSIONS								= [ r'.png', r'.jpg', r'.jpeg', r'.gif' ]
-	VID_EXTENSIONS								= [ r'.mp4', r'.mpeg4', r'.mpg', r'.mpeg', r'.avi', r'.mjpeg', r'.3gp', r'.mov' ]
+	VID_EXTENSIONS								= [ r'.mp4', r'.mpeg4', r'.mpg', r'.mpeg', r'.avi', r'.mjpeg', r'.3gp', r'.mov', r'.wmv', r'.asf' ]
 	EEK_EXTENSIONS								= [ r'.m2ts' ]
 	VID_EEK_EXTENSIONS							= VID_EXTENSIONS + EEK_EXTENSIONS
 	EXTENSIONS									= PIC_EXTENSIONS + VID_EXTENSIONS + EEK_EXTENSIONS
