@@ -117,7 +117,7 @@ Get-ChildItem -Path $TopFolder -Recurse -Directory | ForEach-Object {
 		#Write-Host "FOLDER Current Name: '$folderPath' Proposed New Name: '$newFolderName'"
 		Write-Host "Rename-Item -LiteralPath $folderPath -NewName $newFolderName -Force"
 		# Uncomment the line below to perform the rename
-		#Rename-Item -LiteralPath $folderPath -NewName $newFolderName -Force
+		Rename-Item -LiteralPath $folderPath -NewName $newFolderName -Force
 	}
 }
 Write-Host "END FOLDER RENAMES"
@@ -187,6 +187,9 @@ Get-ChildItem -Path $TopFolder -Recurse -File | ForEach-Object {
 	
 	$newFileName = $newFileName -replace '_+', '_'	# not the same as the others
 	$newFileName = $newFileName.Trim().TrimStart('_').TrimEnd('_').TrimStart('-').TrimEnd('-').TrimStart('.').TrimEnd('.')
+	$fileNameOnly = [System.IO.Path]::GetFileNameWithoutExtension($newFileName).Trim().TrimStart('_').TrimEnd('_').TrimStart('-').TrimEnd('-').TrimStart('.').TrimEnd('.')
+	$fileExtension = [System.IO.Path]::GetExtension($newFileName)
+	$newFileName = "$fileNameOnly$fileExtension"
 	if ($newFileName -ne $fileName) {
 		$counter = 0
 		$fileNameOnly = [System.IO.Path]::GetFileNameWithoutExtension($newFileName)
